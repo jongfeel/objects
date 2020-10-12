@@ -20,10 +20,10 @@ C#이기 때문에 자연스럽게 .NET Core로 진행하는게 맞을 텐데 .N
 현 시점에도 v5.0.0-rc.1이 release 되었기 때문에 특별히 .NET 5로 진행해 본다.
 또 실행을 시켜서 결과를 확인해볼 수 있게 구성할 예정이다.
 
-- https://dotnet.microsoft.com/download/dotnet/5.0
+- [https://dotnet.microsoft.com/download/dotnet/5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 - 계속해서 preview 버전이 업데이트 되었다가, 2020-09-14에 rc1이 release 되었음
 - 최신 업데이트 버전이 공개되면 이 문서를 계속 수정할 예정임.
 
 ## Contnets
 
-... 
+...

@@ -14,7 +14,8 @@ Ticket sale application
 - C#의 경우는 DateTime
 - 둘의 큰 차이는 아마 없을 것이다.
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 <p>
 
 ``` java
@@ -24,6 +25,7 @@ public class Invitation {
     private LocalDateTime when;
 }
 ```
+
 ``` csharp
 using System;
 
@@ -44,7 +46,8 @@ public class Invitation {
   - Java는 field값을 얻기 위한 public method로 get이라는 이름을 붙여 메소드로 구현한다. 명시적이다.
   - C#의 경우는 property라는 문법이 제공되고 get을 구현하면 getter가 되므로 함축적이면서 간결하게 구현이 가능하다. 거기에 Read-only body expression을 사용하면 더 함축적인 문법적 구현이 가능해진다. [참고](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/statements-expressions-operators/expression-bodied-members#read-only-properties)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 <p>
 
 ``` java
@@ -56,9 +59,10 @@ public class Ticket {
     }
 }
 ```
+
 ``` csharp
 public class Ticket {
-    
+
     private long fee;
 
     public long Fee => fee;
@@ -77,7 +81,8 @@ public class Ticket {
   - Ticket.cs에서도 설명했듯이, C#의 경우는 한 줄로 코드가 되어 있는 부분은 body expression으로 함축적으로 표현이 가능해진다.
   - 이런 경우는 return 키워드 생략, `{}` body 기호도 생략할 수 있다.
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 <p>
 
 ``` java
@@ -116,9 +121,10 @@ public class Bag {
     }
 }
 ```
+
 ``` csharp
 public class Bag {
-    
+
     private long amount;
     private Invitation invitation;
     private Ticket ticket;
