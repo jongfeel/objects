@@ -266,8 +266,10 @@ public class TicketOffice {
   - addAll 메소드는 파라미터로 Collection < Ticket > 를 받는다
   - 생성자의 ... 은 Varargs라고 하는 문법으로 Ticket type의 가변 array를 받은 것이라고 보면 된다.
   - 호출하는 쪽에서는 Ticket[] 타입이 아니라 Ticket type을 하나씩 나열해서 호출하는게 가능하다. [문서](https://docs.oracle.com/javase/8/docs/technotes/guides/language/varargs.html) 참고.
-  - Arrays.asList(T ... a)로 정의되어 있는데 Ticket 타입의 array를 List< Ticket >로 return해 준다.
-  - List < T >는 Collection < T >를 상속받은 interface이므로 역시 리스코프 치환 원칙에 따라서 assign이 가능해진다.
+  - Arrays.asList(T ... a) 부분은 Ticket[] 를 parameter로 받아 List< Ticket > 타입으로 return해 준다.
+  - Ticket[]를 List< Ticket > 타입으로 캐스팅 하기 위해 Arrays.asList 메소드를 호출해준다.
+  - Arrays.asList() 메소드를 통해 List < Ticket > 타입으로 캐스팅 했는데, List.addAll() 메소드의 parameter 타입은 Collection < Ticket >이다.
+  - 여기서 List< Ticket >는 Collection< Ticket >을 상속받은 interface이므로 역시 리스코프 치환 원칙에 따라서 paramter 전달이 가능하다.
 - 이 두 줄의 코드를 보고 이정도 얘기할 수 있다면 java를 겉핥기 식으로 공부한게 아니라고 얘기할 수 있다.
 - tickets.remove(0)
   - remove 메소드는 0번째 index에 해당하는 element를 삭제하고 return 값으로 삭제한 element 값을 준다. 그러므로 remove 메소드 호출한 결과를 Ticket type으로 return해 줄 수 있다.
@@ -286,7 +288,7 @@ public class TicketOffice {
 
 - 어느 문법에 우열이 있다고 보기 어렵다.
 - Java의 경우 List.remove 메소드는 index 접근해서 element를 가져오고 동시에 삭제가 되는 매우 효율적인 메소드를 제공하지만 C#은 이런 메소드가 없기 때문에 indexer를 통해 element를 가져오고 List.RemoveAt 메소드를 통해 삭제를 진행해야 한다.
-- 반면 List 계열의 interface들 간의 캐스팅에서 Java의 경우 Arrays.asList와 같은 명시적 메소드 호출을 통한 명시적 inteface type 캐스팅이 진행되어야 하지만, C#의 경우는 Array와 List 간의 interface 구현이 IEnumerable로 동일하기 때문에 캐스팅 없이 암시적으로 문법적 구현이 가능하다.
+- 반면 List 계열의 interface들 간의 캐스팅에서 Java의 경우 []를 List로 캐스팅 하기 위해 Arrays.asList와 같은 명시적 메소드 호출을 통한 타입 캐스팅이 진행되어야 하지만, C#의 경우는 Array와 List 간의 interface 구현이 IEnumerable로 동일하기 때문에 캐스팅 없이 암시적으로 문법적 구현이 가능하다.
 
 ### TicketSeller.java and TicketSeller.cs
 
