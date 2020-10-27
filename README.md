@@ -28,4 +28,4 @@ C#이기 때문에 자연스럽게 .NET Core로 진행하는게 맞을 텐데 .N
 
 ### Chapter 01
 
-- [Java and C# code review](/Chapter01_Object_Design/README.md)
+- [Java and C# code review](/Chapter01_Object_Design/)
