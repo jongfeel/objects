@@ -14,6 +14,21 @@ public class Bag {
         this.amount = amount;
     }
 
+    public long Hold(Ticket ticket)
+    {
+        if (HasInvitation)
+        {
+            SetTicket(ticket);
+            return 0;
+        }
+        else
+        {
+            SetTicket(ticket);
+            MinusAmount(ticket.Fee);
+            return ticket.Fee;
+        }
+    }
+
     public bool HasInvitation => invitation != null;
 
     public bool HasTicket => ticket != null;

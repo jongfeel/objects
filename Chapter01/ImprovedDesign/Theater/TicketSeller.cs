@@ -4,5 +4,5 @@ public class TicketSeller {
 
     public TicketSeller(TicketOffice ticketOffice) => this.ticketOffice = ticketOffice;
 
-    public TicketOffice TicketOffice => ticketOffice;
+    public void SellTo(Audience audience) => ticketOffice.SellTicketTo(audience);
 }

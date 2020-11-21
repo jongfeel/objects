@@ -12,6 +12,8 @@ public class TicketOffice {
         this.tickets.AddRange(tickets);
     }
 
+    public void SellTicketTo(Audience audience) => PlusAmount(audience.Buy(Ticket));
+
     public Ticket Ticket
     {
         get
@@ -22,7 +24,7 @@ public class TicketOffice {
         }
     }
 
-    public void MinusAmount(long amount) => this.amount -= amount;
+    private void MinusAmount(long amount) => this.amount -= amount;
 
-    public void PlusAmount(long amount) => this.amount += amount;
+    private void PlusAmount(long amount) => this.amount += amount;
 }
