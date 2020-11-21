@@ -31,11 +31,7 @@ public class Bag {
 
     public bool HasInvitation => invitation != null;
 
-    public bool HasTicket => ticket != null;
-
     public void SetTicket(Ticket ticket) => this.ticket = ticket;
 
     public void MinusAmount(long amount) => this.amount -= amount;
-
-    public void PlusAmount(long amount) => this.amount += amount;
 }
