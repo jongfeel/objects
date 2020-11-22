@@ -1,5 +1,7 @@
 # objects
 
+![objects](https://image.aladin.co.kr/product/19368/10/cover500/k972635015_1.jpg)
+
 오브젝트, 코드로 이해하는 객체지향 설계 책의 예제 코드를 보고 이해
 
 ## Overview
@@ -30,3 +32,4 @@ C#이기 때문에 자연스럽게 .NET Core로 진행하는게 맞을 텐데 .N
 
 - [Java and C# code review](/Chapter01/Object_Design/)
 - [Test program](/Chapter01/TestProgram/)
+- [Improved design](/Chapeter01/ImprovedDesign/)
