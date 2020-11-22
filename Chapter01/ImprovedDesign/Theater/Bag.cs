@@ -16,22 +16,11 @@ public class Bag {
 
     public long Hold(Ticket ticket)
     {
-        if (HasInvitation)
-        {
-            SetTicket(ticket);
-            return 0;
-        }
-        else
-        {
-            SetTicket(ticket);
-            MinusAmount(ticket.Fee);
-            return ticket.Fee;
-        }
+        this.ticket = ticket;
+        long fee = HasInvitation ? 0 : ticket.Fee;
+        amount -= fee;
+        return fee;
     }
 
-    public bool HasInvitation => invitation != null;
-
-    public void SetTicket(Ticket ticket) => this.ticket = ticket;
-
-    public void MinusAmount(long amount) => this.amount -= amount;
+    private bool HasInvitation => invitation != null;
 }

@@ -2,7 +2,9 @@ using System;
 
 public class Ticket {
     
-    private long fee = 10000;
+    private long fee;
 
     public long Fee => fee;
+
+    public Ticket(long fee) => this.fee = fee;
 }
