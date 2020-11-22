@@ -32,4 +32,4 @@ C#이기 때문에 자연스럽게 .NET Core로 진행하는게 맞을 텐데 .N
 
 - [Java and C# code review](/Chapter01/Object_Design/)
 - [Test program](/Chapter01/TestProgram/)
-- [Improved design](/Chapeter01/ImprovedDesign/)
+- [Improved design](/Chapter01/ImprovedDesign/)
