@@ -138,7 +138,7 @@ public long Hold(Ticket ticket)
 }
 ```
 
-마지막으로,
+네번째는,
 HasInvitation에 따라 0 또는 ticket.Fee를 리턴해 주는 코드인데 amount의 값에 영향을 주는 값이라고 생각해 보면 HasInvitation이 true일 때 amount -= 0 이라고 해도 amount의 값에는 변화가 없으므로 아래와 같이 간소화한 코드로 변경할 수 있다.
 
 ``` csharp
@@ -146,6 +146,19 @@ public long Hold(Ticket ticket)
 {
     this.ticket = ticket;
     long fee = HasInvitation ? 0 : ticket.Fee;
+    amount -= fee;
+    return fee;
+}
+```
+
+마지막으로,
+HasInvitation 역시 Invitation의 존재 유무를 판단하는 것이고 private이기 때문에 삭제하고 null 체크 해주는 로직으로 바꾼다.
+
+``` csharp
+public long Hold(Ticket ticket)
+{
+    this.ticket = ticket;
+    long fee = invitation != null ? 0 : ticket.Fee;
     amount -= fee;
     return fee;
 }

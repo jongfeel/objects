@@ -21,6 +21,4 @@ public class Bag {
         amount -= fee;
         return fee;
     }
-
-    private bool HasInvitation => invitation != null;
 }
