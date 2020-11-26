@@ -57,6 +57,26 @@ Ticket ticket = new Ticket() { Fee = 15000 };
 
 Bag class의 설계 변경은 매우 훌륭하지만 Bag.Hold 메소드는 매우 눈에 띄는 refactoring point를 준다.\
 
+원래 코드
+``` csharp
+public long Hold(Ticket ticket)
+{
+    if (HasInvitation)
+    {
+        SetTicket(ticket);
+        return 0;
+    }
+    else
+    {
+        SetTicket(ticket);
+        MinusAmount(ticket.Fee);
+        return ticket.Fee;
+    }
+}
+
+private void SetTicket(Ticket ticket) => this.ticket = ticket;
+```
+
 첫번째는,\
 SetTicket() 메소드인데, HasInvitation의 여부와 상관 없이 SetTicket() 메소드는 호출하기 때문에 한 줄로 바꿔볼 수 있다.
 
