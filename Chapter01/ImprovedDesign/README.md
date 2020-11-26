@@ -51,13 +51,14 @@ public class Ticket {
 Ticket ticket = new Ticket() { Fee = 15000 };
 ```
 
-> C#의 Property 문법은 2.0 버전부터 지원을 했는데, 쓸데없는 getter, setter 메소드를 작성하는 수고로움을 덜어주는 좋은 문법 중에 하나라고 본다.
+> C#의 Property 문법은 2.0 버전부터 지원을 했는데,  getter, setter 메소드를 작성하는 수고로움을 덜어주는 좋은 문법 중에 하나라고 본다.
 
 ### Bag
 
 Bag class의 설계 변경은 매우 훌륭하지만 Bag.Hold 메소드는 매우 눈에 띄는 refactoring point를 준다.\
 
 원래 코드
+
 ``` csharp
 public long Hold(Ticket ticket)
 {
@@ -148,5 +149,32 @@ public long Hold(Ticket ticket)
     amount -= fee;
     return fee;
 }
+```
+
+### TicketOffice
+
+TicketOffice의 경우는 private method로 바뀐 PlusAmount, MinusAmount를 삭제하고 바로 field 값을 접근하는 코드로 변경해 볼 수 있다.
+
+원래 코드
+
+``` csharp
+private long amount;
+
+public void SellTicketTo(Audience audience) => PlusAmount(audience.Buy(Ticket));
+
+private void MinusAmount(long amount) => this.amount -= amount;
+
+private void PlusAmount(long amount) => this.amount += amount;
+```
+
+- MinusAmount는 필요가 없으므로 삭제한다. 아마 티켓 환불하는 용도로 쓸 수 있지만 그 때가 되더라도 바로 amount에 접근해서 계산하는 코드를 짠다.
+- PlusAmount 역시 바로 계산하는 코드로 변경한다.
+- 메소드의 호출이 영어를 읽는 느낌을 주기 때문에 직관적일 수 있다. 하지만 += 연산자 역시 기존 값에 더해서 저장한다는 뜻이므로 더 직관적일 수 있다. 
+
+``` csharp
+private long amount;
+
+public void SellTicketTo(Audience audience) => amount += audience.Buy(Ticket);
+
 ```
 
