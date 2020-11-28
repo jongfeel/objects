@@ -12,7 +12,15 @@ public class TicketOffice {
         this.tickets.AddRange(tickets);
     }
 
-    public void SellTicketTo(Audience audience) => amount += audience.Buy(Ticket);
+    public void SellTicketTo(Audience audience)
+    {
+        if (audience.Invitation != null)
+        {
+            Ticket.InvitationExchanged();
+        }
+        
+        amount += audience.Buy(Ticket);
+    }
 
     public Ticket Ticket
     {

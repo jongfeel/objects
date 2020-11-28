@@ -182,7 +182,7 @@ private void PlusAmount(long amount) => this.amount += amount;
 
 - MinusAmount는 필요가 없으므로 삭제한다. 아마 티켓 환불하는 용도로 쓸 수 있지만 그 때가 되더라도 바로 amount에 접근해서 계산하는 코드를 짠다.
 - PlusAmount 역시 바로 계산하는 코드로 변경한다.
-- 메소드의 호출이 영어를 읽는 느낌을 주기 때문에 직관적일 수 있다. 하지만 += 연산자 역시 기존 값에 더해서 저장한다는 뜻이므로 더 직관적일 수 있다. 
+- 메소드의 호출이 영어를 읽는 느낌을 주기 때문에 직관적일 수 있다. 하지만 += 연산자 역시 기존 값에 더해서 저장한다는 뜻이므로 더 직관적일 수 있다.
 
 ``` csharp
 private long amount;
@@ -191,3 +191,76 @@ public void SellTicketTo(Audience audience) => amount += audience.Buy(Ticket);
 
 ```
 
+## Real improved design by the real world
+
+이제 리팩토링은 여기까지 해도 될 것 같다. 하지만 진짜 중요한게 남아 있다. 여태까지의 class 설계는 책에 나와 있는 내용을 설명하기 위한 방향이었고, 다시 객체들의 행동들을 보면 실제 세계에서 일어날 법한 일을 하지 않고 있다.
+
+### Analysis problem - buy ticket first, but audience has invitation
+
+audience가 ticket을 buy 하기 위해 bag에 ticket을 hold 시킨다. 그리고 ticket 금액을 돌려준다. 이것만 보면 이미 티켓은 구입 했고 구입 금액을 return 해 줬으니까 별 문제가 없어 보인다.
+
+``` csharp
+public class Audience {
+    public long Buy(Ticket ticket) => bag.Hold(ticket);
+}
+```
+
+그런데 여기서 부터가 이상하다. 이미 ticket을 넣었는데 invitation이 있는지 조사를 하고 invitation이 있다면 return 값을 0으로 준다. 즉 공짜라는 소리이다. 그런데 `this.ticket = ticket;` 이 코드가 ticket을 넣었다는 걸 표현하는 건데 invitation은 그 이후에 있는지 판단하고 ticket.fee를 0을 준다, 안줬다는 얘기다.
+
+``` csharp
+public class Bag {
+    public long Hold(Ticket ticket)
+    {
+        this.ticket = ticket;
+        long fee = invitation != null ? 0 : ticket.Fee;
+        amount -= fee;
+        return fee;
+    }
+}
+```
+
+현실 세계를 잘 생각해 보자, audience가 invitation을 가지고 있다면 ticketSeller에게 먼저 invitation을 보여주고 난 이후 ticket을 받는 과정이 자연스럽다. 능청스럽게 ticket을 받고 가방에 넣었는데 "어라? invitation 있네? 계산 안해도 되죠?" 하는 프로세스는 현실 세계에는 없다.
+
+그래서 ticketOffice에서 미리 invitation을 확인한다. 그리고 있으면 invitation 교환 ticket으로 구매한다고 생각해 보면 된다. 코드 상으로는 fee = 0을 세팅해 준다.
+
+그리고 나서 ticket을 buy 하는 프로세스로 간다.
+
+``` csharp
+public void SellTicketTo(Audience audience)
+{
+    if (audience.HasInvitation != null)
+    {
+        Ticket.InvitationExchanged();
+    }
+
+    amount += audience.Buy(Ticket);
+}
+```
+
+그리고 나서 Bag class는 아래와 같이 변경한다.
+
+Hold method는 ticket을 넣고 티켓 액면가 만큼 내 가방에서 액수를 제외하고 티켓 가격을 return해 준다. Hold method가 이제서야 한가지 일을 하는 method로 단순화가 되었다.
+
+Invitation의 경우는 constructor에서 설정해 주므로 private set으로 해주고 invitation을 바로 얻어올 수 있도록 get으로 해서 property로 만들어 준다. 그러면 invitation은 ticket과 상관 없이 가방에 넣고 빼낼 수 있는 독립적인 객체가 된다.
+
+``` csharp
+public class Bag {
+    public Invitation Invitation { private set; get; }
+    private Ticket ticket;
+
+    public long Hold(Ticket ticket)
+    {
+        this.ticket = ticket;
+        amount -= ticket.Fee;
+        return ticket.Fee;
+    }
+}
+```
+
+Audience 역시 invitation과 ticket을 선택할 수 있어야 하므로 Invitation을 추가한다.
+
+``` csharp
+public class Audience {
+    public Invitation Invitation => bag.Invitation;
+}
+```
