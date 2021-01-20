@@ -21,8 +21,6 @@ Movie program
 
 ### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/Screening.cs)
 
-Java: Screening.java
-
 <details>
 <summary>Code</summary>
 <p>
@@ -101,3 +99,121 @@ public class Screening
 </details>
 
 눈에 띄는 차이점은 역시 [ExpressionBody](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/statements-expressions-operators/expression-bodied-members#read-only-properties)이다. C#의 코드를 매우 간략하고 함축적으로 설명해 주는 좋은 문법이라고 생각한다.
+
+### [Resevration.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/Reservation.java) and [Resevration.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/Reservation.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+import org.eternity.money.Money;
+
+public class Reservation {
+    private Customer customer;
+    private Screening Screening;
+    private Money fee;
+    private int audienceCount;
+
+    public Reservation(Customer customer, Screening Screening, Money fee, int audienceCount) {
+        this.customer = customer;
+        this.Screening = Screening;
+        this.fee = fee;
+        this.audienceCount = audienceCount;
+    }
+}
+```
+
+``` csharp
+public class Reservation
+{
+    private Customer customer;
+    private Screening screening;
+    private Money fee;
+    private int audienceCount;
+
+    public Reservation(Customer customer, Screening screening, Money fee, int audienceCount)
+    {
+        this.customer = customer;
+        this.screening = screening;
+        this.fee = fee;
+        this.audienceCount = audienceCount;
+    }
+}
+```
+
+</p>
+</details>
+
+너무 Class 기본 코드로만 작성하다 보니 문법 마저도 똑같은 코드다. 할 얘기가 없으므로 패스
+
+### [Movie.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/Movie.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/Movie.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+  
+package org.eternity.movie.step01;
+
+import org.eternity.money.Money;
+
+import java.time.Duration;
+
+public class Movie {
+    private String title;
+    private Duration runningTime;
+    private Money fee;
+    private DiscountPolicy discountPolicy;
+
+    public Movie(String title, Duration runningTime, Money fee, DiscountPolicy discountPolicy) {
+        this.title = title;
+        this.runningTime = runningTime;
+        this.fee = fee;
+        this.discountPolicy = discountPolicy;
+    }
+
+    public Money getFee() {
+        return fee;
+    }
+
+    public Money calculateMovieFee(Screening screening) {
+        if (discountPolicy == null) {
+            return fee;
+        }
+        return fee.minus(discountPolicy.calculateDiscountAmount(screening));
+    }
+}
+```
+
+``` csharp
+using System;
+
+public class Movie
+{
+    private string title;
+    private TimeSpan runningTime;
+    private Money fee;
+    private DiscountPolicy discountPolicy;
+
+    public Movie(string title, TimeSpan runningTime, Money fee, DiscountPolicy discountPolicy) {
+        this.title = title;
+        this.runningTime = runningTime;
+        this.fee = fee;
+        this.discountPolicy = discountPolicy;
+    }
+
+    public Money Fee => fee;
+
+    public Money CalculateMovieFee(Screening screening) =>
+        discountPolicy == null ? fee : fee.Minus(discountPolicy.CalculateDiscountAmount(screening));
+}
+```
+
+</p>
+</details>
+
+하나 언급하자면 유연한 설계를 설명하면서 Movie.calculateMovieFee(Screening screening)를 설명하는데 책에는 null 체크 하는 부분이 있지만 github에는 빠져있다. C#으로 옮기면서 그냥 conditional operator로 처리했다. Java에도 있는 문법이다.
