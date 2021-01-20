@@ -100,6 +100,8 @@ public class Screening
 
 눈에 띄는 차이점은 역시 [ExpressionBody](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/statements-expressions-operators/expression-bodied-members#read-only-properties)이다. C#의 코드를 매우 간략하고 함축적으로 설명해 주는 좋은 문법이라고 생각한다.
 
+또 1장에도 언급한 얘기지만 LocalDateTime은 C#에서는 DateTime으로 대체한다.
+
 ### [Resevration.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/Reservation.java) and [Resevration.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/Reservation.cs)
 
 <details>
