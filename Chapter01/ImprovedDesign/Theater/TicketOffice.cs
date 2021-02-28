@@ -1,15 +1,14 @@
 using System.Collections.Generic;
-using System.Linq;
 
 public class TicketOffice {
     
     private long amount;
-    private List<Ticket> tickets = new List<Ticket>();
+    private Stack<Ticket> tickets;
 
     public TicketOffice(long amount, params Ticket[] tickets)
     {
         this.amount = amount;
-        this.tickets.AddRange(tickets);
+        this.tickets = new Stack<Ticket>(tickets);
     }
 
     public void SellTicketTo(Audience audience)
@@ -22,13 +21,5 @@ public class TicketOffice {
         amount += audience.Buy(Ticket);
     }
 
-    public Ticket Ticket
-    {
-        get
-        {
-            Ticket t = tickets[0];
-            tickets.RemoveAt(0);
-            return t;
-        }
-    }
+    private Ticket Ticket => tickets.Pop();
 }
