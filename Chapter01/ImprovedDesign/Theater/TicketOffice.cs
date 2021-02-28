@@ -2,12 +2,12 @@ using System.Collections.Generic;
 
 public class TicketOffice {
     
-    private long amount;
+    public long Amount { private set; get; }
     private Stack<Ticket> tickets;
 
     public TicketOffice(long amount, params Ticket[] tickets)
     {
-        this.amount = amount;
+        this.Amount = amount;
         this.tickets = new Stack<Ticket>(tickets);
     }
 
@@ -18,7 +18,7 @@ public class TicketOffice {
             Ticket.InvitationExchanged();
         }
         
-        amount += audience.Buy(Ticket);
+        Amount += audience.Buy(Ticket);
     }
 
     private Ticket Ticket => tickets.Pop();
