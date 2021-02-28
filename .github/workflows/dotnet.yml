@@ -20,7 +20,7 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./Chapter01/UnitTest
     - name: Build => Chapter01/UnitTest
       run: dotnet build Chapter01/UnitTest --no-restore
     - name: Test => Chapter01/UnitTest 
