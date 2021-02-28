@@ -22,4 +22,6 @@ public class TicketOffice {
     }
 
     private Ticket Ticket => tickets.Pop();
+
+    public int TicketCount => tickets.Count;
 }
