@@ -11,15 +11,7 @@ public class TicketOffice {
         this.tickets = new Stack<Ticket>(tickets);
     }
 
-    public void SellTicketTo(Audience audience)
-    {
-        // if (audience.Invitation != null)
-        // {
-        //     Ticket.InvitationExchanged();
-        // }
-        
-        Amount += audience.Buy(Ticket);
-    }
+    public void SellTicketTo(Audience audience) => Amount += audience.Buy(Ticket);
 
     private Ticket Ticket => tickets.Pop();
 
