@@ -2,7 +2,7 @@ using System;
 
 public class Bag {
     
-    private long amount;
+    public long Amount { private set; get; }
     public Invitation Invitation { private set; get; }
     private Ticket ticket;
 
@@ -11,7 +11,7 @@ public class Bag {
     public Bag(Invitation invitation, long amount)
     {
         Invitation = invitation;
-        this.amount = amount;
+        this.Amount = amount;
     }
 
     public long Hold(Ticket ticket)
@@ -23,7 +23,7 @@ public class Bag {
             Invitation = null;
         }
 
-        amount -= ticket.Fee;
+        Amount -= ticket.Fee;
         return ticket.Fee;
     }
 }

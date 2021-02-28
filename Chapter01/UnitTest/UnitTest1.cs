@@ -14,14 +14,21 @@ namespace UnitTest
             {
                 tickets[i] = new Ticket();
             }
-            TicketSeller ticketSeller = new TicketSeller(new TicketOffice(1000000, tickets));
+
+            int officeProperty = 1000000;
+            TicketOffice ticketOffice = new TicketOffice(1000000, tickets);
+            TicketSeller ticketSeller = new TicketSeller(ticketOffice);
             Theater1 theater = new Theater1(ticketSeller);
-            
+
+            int audienceCash = 20000;
+            Bag bag = new Bag(audienceCash);
+            Audience jisoo = new Audience(bag);
+
             // Act
-            theater.Enter(new Audience(new Bag(20000)));
+            theater.Enter(jisoo);
 
             // Assert
-            Assert.AreEqual("1", "1");
+            Assert.AreEqual(officeProperty + audienceCash, ticketOffice.Amount + jisoo.Amount);
         }
     }
 }
