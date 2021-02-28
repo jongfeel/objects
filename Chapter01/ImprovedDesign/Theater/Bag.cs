@@ -17,6 +17,12 @@ public class Bag {
     public long Hold(Ticket ticket)
     {
         this.ticket = ticket;
+        if (Invitation != null) // has invitations
+        {
+            ticket.InvitationExchanged();
+            Invitation = null;
+        }
+
         amount -= ticket.Fee;
         return ticket.Fee;
     }

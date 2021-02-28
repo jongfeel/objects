@@ -13,10 +13,10 @@ public class TicketOffice {
 
     public void SellTicketTo(Audience audience)
     {
-        if (audience.Invitation != null)
-        {
-            Ticket.InvitationExchanged();
-        }
+        // if (audience.Invitation != null)
+        // {
+        //     Ticket.InvitationExchanged();
+        // }
         
         Amount += audience.Buy(Ticket);
     }
