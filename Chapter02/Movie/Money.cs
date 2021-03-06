@@ -8,17 +8,21 @@ public class Money {
 
     public static Money Wons(double amount) => new Money((decimal)amount);
 
-    Money(decimal amount) => this.amount = amount;
+    private Money(decimal amount) => this.amount = amount;
 
-    public Money Plus(Money amount) => new Money(this.amount + amount.amount);
+    public static Money operator +(Money a, Money b) => new Money(a.amount + b.amount);
 
-    public Money Minus(Money amount) => new Money(this.amount - amount.amount);
+    public static Money operator -(Money a, Money b) => new Money(a.amount - b.amount);
 
-    public Money Times(double percent) => new Money(this.amount * (decimal)percent);
+    public static Money operator *(Money a, double b) => new Money(a.amount * (decimal)b);
 
-    public bool IsLessThan(Money other) => amount < other.amount;
+    public static bool operator <(Money a, Money b) => a.amount < b.amount;
 
-    public bool IsGreaterThanOrEqual(Money other) => amount >= other.amount;
+    public static bool operator >(Money a, Money b) => a.amount > b.amount;
+
+    public static bool operator >=(Money a, Money b) => a.amount >= b.amount;
+
+    public static bool operator <=(Money a, Money b) => a.amount >= b.amount;
 
     // public boolean equals(Object object) {
     //     if (this == object) {
@@ -37,7 +41,5 @@ public class Money {
     //     return Objects.hashCode(amount);
     // }
 
-    // public String toString() {
-    //     return amount.toString() + "원";
-    // }
+    public override string ToString() => $"{amount}원";
 }
