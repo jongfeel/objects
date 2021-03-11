@@ -4,5 +4,5 @@ public class PercentDiscountPolicy : DiscountPolicy
 
     public PercentDiscountPolicy(double percent, params DiscountCondition[] conditions) : base(conditions) => this.percent = percent;
 
-    protected override Money GetDiscountAmount(Screening screening) => screening.MovieFee.Times(percent);
+    protected override Money GetDiscountAmount(Screening screening) => screening.MovieFee * percent;
 }

@@ -22,5 +22,5 @@ public class Screening
     public Reservation Reserve(Customer customer, int audienceCount) =>
         new Reservation(customer, this, CalculateFee(audienceCount), audienceCount);
 
-    private Money CalculateFee(int audienceCount) => movie.CalculateMovieFee(this).Times(audienceCount);
+    private Money CalculateFee(int audienceCount) => movie.CalculateMovieFee(this) * audienceCount;
 }

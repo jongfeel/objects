@@ -17,5 +17,5 @@ public class Movie
     public Money Fee => fee;
 
     public Money CalculateMovieFee(Screening screening) =>
-        discountPolicy == null ? fee : fee.Minus(discountPolicy.CalculateDiscountAmount(screening));
+        discountPolicy == null ? fee : fee - discountPolicy.CalculateDiscountAmount(screening);
 }
