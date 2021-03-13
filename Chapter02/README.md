@@ -19,6 +19,124 @@ Movie program
 
 ## Code review
 
+### [Money.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/money/Money.java) and [Money.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/Money.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.money;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+
+public class Money {
+    public static final Money ZERO = Money.wons(0);
+
+    private final BigDecimal amount;
+
+    public static Money wons(long amount) {
+        return new Money(BigDecimal.valueOf(amount));
+    }
+
+    public static Money wons(double amount) {
+        return new Money(BigDecimal.valueOf(amount));
+    }
+
+    Money(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public Money plus(Money amount) {
+        return new Money(this.amount.add(amount.amount));
+    }
+
+    public Money minus(Money amount) {
+        return new Money(this.amount.subtract(amount.amount));
+    }
+
+    public Money times(double percent) {
+        return new Money(this.amount.multiply(BigDecimal.valueOf(percent)));
+    }
+
+    public boolean isLessThan(Money other) {
+        return amount.compareTo(other.amount) < 0;
+    }
+
+    public boolean isGreaterThanOrEqual(Money other) {
+        return amount.compareTo(other.amount) >= 0;
+    }
+
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (!(object instanceof Money)) {
+            return false;
+        }
+
+        Money other = (Money)object;
+        return Objects.equals(amount.doubleValue(), other.amount.doubleValue());
+    }
+
+    public int hashCode() {
+        return Objects.hashCode(amount);
+    }
+
+    public String toString() {
+        return amount.toString() + "원";
+    }
+}
+```
+
+``` csharp
+public class Money {
+    
+    public static Money ZERO = Money.Wons(0);
+
+    private decimal amount;
+
+    public static Money Wons(long amount) => new Money((decimal)amount);
+
+    public static Money Wons(double amount) => new Money((decimal)amount);
+
+    private Money(decimal amount) => this.amount = amount;
+
+    public static Money operator +(Money a, Money b) => new Money(a.amount + b.amount);
+
+    public static Money operator -(Money a, Money b) => new Money(a.amount - b.amount);
+
+    public static Money operator *(Money a, double b) => new Money(a.amount * (decimal)b);
+
+    public static bool operator <(Money a, Money b) => a.amount < b.amount;
+
+    public static bool operator >(Money a, Money b) => a.amount > b.amount;
+
+    public static bool operator >=(Money a, Money b) => a.amount >= b.amount;
+
+    public static bool operator <=(Money a, Money b) => a.amount >= b.amount;
+
+    public override string ToString() => $"{amount}원";
+}
+```
+
+</p>
+</details>
+
+C++, C# 프로그래머라면 Money class를 보고 operator overloading을 적용하면 좋다는 생각이 떠오를 것이다.
+
+그래서 operator overloading을 적용해서 Money class에 대한 [리팩토링을 진행했다](https://github.com/jongfeel/objects/pull/5).
+
+이후 Money class를 사용하는 부분은 operator overloading이 적용된 코드로 변경하였다.
+
+plus(), minus(), times() 메소드해 해당하는 부분은 각각 +, -, * 연산자로 직관적으로 사용할 수 있다.
+
+isLessThan()은 < 연산자만 구현하면 될 것 같은데, > 연산자 역시 함께 구현해야 한다. 둘 중 하나만 구현하면 에러가 난다.
+
+isGreaterThanOrEqual() 역시 <=, >= 연산자 두개가 필요하다.
+
 ### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/Screening.cs)
 
 <details>
@@ -91,7 +209,7 @@ public class Screening
     public Reservation Reserve(Customer customer, int audienceCount) =>
         new Reservation(customer, this, CalculateFee(audienceCount), audienceCount);
 
-    private Money CalculateFee(int audienceCount) => movie.CalculateMovieFee(this).Times(audienceCount);
+    private Money CalculateFee(int audienceCount) => movie.CalculateMovieFee(this) * audienceCount;
 }
 ```
 
@@ -211,7 +329,7 @@ public class Movie
     public Money Fee => fee;
 
     public Money CalculateMovieFee(Screening screening) =>
-        discountPolicy == null ? fee : fee.Minus(discountPolicy.CalculateDiscountAmount(screening));
+        discountPolicy == null ? fee : fee - discountPolicy.CalculateDiscountAmount(screening);
 }
 ```
 
@@ -223,3 +341,107 @@ public class Movie
 또 이걸 그냥 둘 수 없어 pull request를 만들었다.
 
 https://github.com/eternity-oop/object/pull/4
+
+하지만 예제를 설명하기 위해 추가된 임시 코드라고 하여 closed 당함 ㅜㅜ
+
+### [DiscountPolicy.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/DiscountPolicy.java) and [DiscountPolicy.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/DiscountPolicy.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+import org.eternity.money.Money;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public abstract class DiscountPolicy {
+    private List<DiscountCondition> conditions = new ArrayList<>();
+
+    public DiscountPolicy(DiscountCondition ... conditions) {
+        this.conditions = Arrays.asList(conditions);
+    }
+
+    public Money calculateDiscountAmount(Screening screening) {
+        for(DiscountCondition each : conditions) {
+            if (each.isSatisfiedBy(screening)) {
+                return getDiscountAmount(screening);
+            }
+        }
+
+        return Money.ZERO;
+    }
+
+    abstract protected Money getDiscountAmount(Screening Screening);
+}
+```
+
+``` csharp
+using System.Collections.Generic;
+using System.Linq;
+
+public abstract class DiscountPolicy
+{
+    private List<DiscountCondition> conditions = new List<DiscountCondition>();
+
+    public DiscountPolicy(params DiscountCondition[] conditions) => this.conditions.AddRange(conditions);
+
+    public virtual Money CalculateDiscountAmount(Screening screening) =>
+        conditions.Count(condition => condition.IsSatisfiedBy(screening)) > 0 ?
+        GetDiscountAmount(screening) : Money.ZERO;
+
+    abstract protected Money GetDiscountAmount(Screening screening);
+}
+```
+
+</p>
+</details>
+
+#### DiscountPolicy constructor
+
+chapter01의 theater 예제에서도 나왔지만 Java는 Arrays.asList 메소드 호출을 통해 List<> type의 객체로 가져온다.
+반면 C#은 List<> 객체의 AddRange 메소드를 통해 추가하는 형태로 진행할 수 있다.
+표현 방식은 다르지만 list 형태로 받는 conditions를 간단하게 추가해 주는 문법이라고 보면 된다.
+
+#### CalculateDiscountAmount
+
+여기에서도 logic의 의도를 잘 파악하고 구현한다면 변형이 얼마든지 가능하다.
+conditions 중에 screening을 만족 시키는(isSatisfiedBy) condition을 찾으면 getDiscountAmount라는 메소드를 호출해서 할인 가격을 return 하는 코드이다.
+C#에서는 Count() 라는 linq를 사용해 조건에 부합하는 condition이 존재하면 메소드를 호출하는 식으로 변형했다.
+
+Java 역시 stream을 사용하면 C#과 비슷한 문법으로 변형 가능하다.
+
+``` java
+return conditions.stream().filter(condition -> condition.isSatisfiedBy(screening)).count() > 0 ? getDiscountAmount(screening) : Money.ZERO;
+```
+
+### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/DiscountCondition.java) and [DiscountCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/DiscountCondition.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+public interface DiscountCondition {
+    boolean isSatisfiedBy(Screening screening);
+}
+```
+
+``` csharp
+  
+public interface DiscountCondition
+{
+    bool IsSatisfiedBy(Screening screening);
+}
+```
+
+</p>
+</details>
+
+Java는 boolean이고 C#은 bool을 씀. 더 이상의 자세한 설명은 없음.
