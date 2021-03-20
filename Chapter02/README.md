@@ -444,4 +444,317 @@ public interface DiscountCondition
 </p>
 </details>
 
-Java는 boolean이고 C#은 bool을 씀. 더 이상의 자세한 설명은 없음.
+Java는 boolean이고 C#은 bool을 씀. 더 이상의 자세한 설명은 생략한다.
+
+### [SequenceCondition.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/pricing/SequenceCondition.java) and [SequenceCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/SequenceCondition.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01.pricing;
+
+import org.eternity.movie.step01.DiscountCondition;
+import org.eternity.movie.step01.Screening;
+
+public class SequenceCondition implements DiscountCondition {
+    private int sequence;
+
+    public SequenceCondition(int sequence) {
+        this.sequence = sequence;
+    }
+
+    public boolean isSatisfiedBy(Screening screening) {
+        return screening.isSequence(sequence);
+    }
+}
+```
+
+``` csharp
+public class SequenceCondition : DiscountCondition
+{
+    private int sequence;
+
+    public SequenceCondition(int sequence) => this.sequence = sequence;
+
+    public bool IsSatisfiedBy(Screening screening) => screening.IsSequence(sequence);
+}
+```
+
+</p>
+</details>
+
+DiscountCondition interface를 구현한 SequenceCondition에 대한 내용이다. 당연하게도 IsSatisfiedBy(Screening screening) 메소드를 구현해야 한다. 문법의 소소한 차이는 있지만 큰 차이는 없다.
+
+### [PeriodCondition.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/pricing/PeriodCondition.java) and [PeriodCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/PeriodCondition.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01.pricing;
+
+import org.eternity.movie.step01.DiscountCondition;
+import org.eternity.movie.step01.Screening;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+
+public class PeriodCondition implements DiscountCondition {
+    private DayOfWeek dayOfWeek;
+    private LocalTime startTime;
+    private LocalTime endTime;
+
+    public PeriodCondition(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public boolean isSatisfiedBy(Screening screening) {
+        return screening.getStartTime().getDayOfWeek().equals(dayOfWeek) &&
+                startTime.compareTo(screening.getStartTime().toLocalTime()) <= 0 &&
+                endTime.compareTo(screening.getStartTime().toLocalTime()) >= 0;
+    }
+}
+```
+
+``` csharp
+using System;
+
+public class PeriodCondition : DiscountCondition
+{
+    private DayOfWeek dayOfWeek;
+    private TimeSpan startTime;
+    private TimeSpan endTime;
+
+    public PeriodCondition(DayOfWeek dayOfWeek, TimeSpan startTime, TimeSpan endTime)
+    {
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public bool IsSatisfiedBy(Screening screening) => screening.StartTime.DayOfWeek == dayOfWeek &&
+            startTime <= screening.StartTime.TimeOfDay &&
+            endTime >= screening.StartTime.TimeOfDay;
+}
+```
+
+</p>
+</details>
+
+날짜와 시간 계산하는 class의 소소한 차이가 있다. LocalTime <-> TimeSpan이다.
+
+field 값 자체를 assign 하는 건 상관 없는데, IsSatisfiedBy 메소드를 구현하는데 있어서 조금 차이가 난다.
+
+Java는 compareTo() 메소드 호출을 통해 어떤 시간 값이 큰지 작은지를 비교한다. 보통의 compare 메소드의 결과는 -1, 0, 1인데 좌측값이 크다면 -1, 우측값이 크다면 1의 결과가 온다. compare 메소드의 결과값에 익숙하다면 자연스럽게 읽을 수 있는 코드이다.
+
+C#의 경우 TimeSpan 뿐 아니라 DateTime 등 날짜와 시간 관련된 struct는 모두 oeprator overloading이 구현되어 있다. 그래서 TimeSpan 객체들끼리 비교를 하면 큰지 작은지를 알 수 있다.
+
+앞서 Money class를 리팩토링 했는데 이미 여기서는 operator overloading이 있는 TimeSpan을 잘 활용한 예라고 보면 된다.
+
+### [AmountDiscountPolicy.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/pricing/AmountDiscountPolicy.java) and [AmountDiscountPolicy.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/AmountDiscountPolicy.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01.pricing;
+
+import org.eternity.money.Money;
+import org.eternity.movie.step01.DiscountCondition;
+import org.eternity.movie.step01.DiscountPolicy;
+import org.eternity.movie.step01.Screening;
+
+public class AmountDiscountPolicy extends DiscountPolicy {
+    private Money discountAmount;
+
+    public AmountDiscountPolicy(Money discountAmount, DiscountCondition... conditions) {
+        super(conditions);
+        this.discountAmount = discountAmount;
+    }
+
+    @Override
+    protected Money getDiscountAmount(Screening screening) {
+        return discountAmount;
+    }
+}
+```
+
+``` csharp
+public class AmountDiscountPolicy : DiscountPolicy
+{
+    private Money discountAmount;
+
+    public AmountDiscountPolicy(Money discountAmount, params DiscountCondition[] conditions) : base(conditions) => this.discountAmount = discountAmount;
+
+    protected override Money GetDiscountAmount(Screening screening) => discountAmount;
+}
+```
+
+</p>
+</details>
+
+#### Constructor
+
+AmountDiscountPolicy 생성자에서 부모 클래스인 DiscountPolicy의 생성자를 호출하는 방식의 차이점이 있다.
+
+Java는 부모 클래스를 super 라는 키워드를 통해 호출한다. 부모가 super class인 셈이다. 문법적인 내용이라 이견은 없다.
+
+C#은 같은 문법인데 키워드만 다르다. base이다. 그런데 base class를 호출한다고 하면 Java 처럼 구현부에 해도 되지만 `:` 키워드를 통해 base class의 호출이 가능하다. 즉 Java 처럼 super class 호출을 위해 구현부를 따로 만들지 않아도 호출할 수 있는 문법을 제공한다.
+
+그래서 C#은 base class 호출 문법을 통해 구현부를 줄일 수 있고, 마침 구현부 역시 discountAmount를 설정하는 코드 한줄이므로 body expression을 통해 한 줄로 구현이 가능해진다.
+
+#### Override
+
+Java의 override 메소드임을 명시하는 @override 어노테이션은 너무 자연스럽고 당연하다.
+물론 이 어노테이션이 없어도 메소드 이름이 정확하다면 override는 동작한다. 어노테이션의 역할은 문법 실수에 대한 방지의 역할을 함과 동시에 override 메소드라는 걸 명시적으로 표현하는 방식이기도 하다.
+
+C#은 override 메소드를 구현하려면 명시적이고도 문법적인 키워드인 override 키워드를 사용해야 한다. 만약 이 키워드를 사용하지 않으면 compile 에러가 나게된다.
+
+Java쪽이 좋냐 C# 쪽이 좋냐는 선호하는 언어에 따라 달라질 것이다.
+
+### [PercentDiscountPolicy.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/pricing/PercentDiscountPolicy.java) and [PercentDiscountPolicy.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/PercentDiscountPolicy.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01.pricing;
+
+import org.eternity.money.Money;
+import org.eternity.movie.step01.DiscountCondition;
+import org.eternity.movie.step01.DiscountPolicy;
+import org.eternity.movie.step01.Screening;
+
+public class PercentDiscountPolicy extends DiscountPolicy {
+    private double percent;
+
+    public PercentDiscountPolicy(double percent, DiscountCondition... conditions) {
+        super(conditions);
+        this.percent = percent;
+    }
+
+    @Override
+    protected Money getDiscountAmount(Screening screening) {
+        return screening.getMovieFee().times(percent);
+    }
+}
+```
+
+``` csharp
+public class PercentDiscountPolicy : DiscountPolicy
+{
+    private double percent;
+
+    public PercentDiscountPolicy(double percent, params DiscountCondition[] conditions) : base(conditions) => this.percent = percent;
+
+    protected override Money GetDiscountAmount(Screening screening) => screening.MovieFee * percent;
+}
+```
+
+</p>
+</details>
+
+AmountDiscountPoilicy와 크게 다르지 않다. 계산하는 방식의 차이만 있을 뿐이다. Money class의 리팩토링으로 인해 C#의 GetDiscountAmount 메소드의 계산하는 코드가 매우 직관적으로 변한것 정도가 눈에 띈다.
+
+### [NoneDiscountPolicy.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step01/pricing/NoneDiscountPolicy.java) and [NoneDiscountPolicy.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/NoneDiscountPolicy.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+  
+package org.eternity.movie.step01.pricing;
+
+import org.eternity.money.Money;
+import org.eternity.movie.step01.DiscountPolicy;
+import org.eternity.movie.step01.Screening;
+
+public class NoneDiscountPolicy extends DiscountPolicy {
+    @Override
+    protected Money getDiscountAmount(Screening screening) {
+        return Money.ZERO;
+    }
+}
+```
+
+``` csharp
+public class NoneDiscountPolicy : DiscountPolicy
+{
+    protected override Money GetDiscountAmount(Screening screening) => Money.ZERO;
+}
+```
+
+</p>
+</details>
+
+유연한 설계를 위해 할인 정책이 필요한데 할인이 안들어가게 만들 수 없는가? 에 대한 대책을 마련한 class라고 보면 된다. 문법적인 차이가 약간 있을 뿐 크게 다른 건 없다.
+
+### [DefaultDiscountPolicy.java](https://github.com/eternity-oop/object/blob/master/chapter02/src/main/java/org/eternity/movie/step02/DefaultDiscountPolicy.java) and [DefaultDiscountPolicy.cs](https://github.com/jongfeel/objects/blob/main/Chapter02/Movie/DefaultDiscountPolicy.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step02;
+
+import org.eternity.money.Money;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public abstract class DefaultDiscountPolicy implements DiscountPolicy {
+    private List<DiscountCondition> conditions = new ArrayList<>();
+
+    public DefaultDiscountPolicy(DiscountCondition... conditions) {
+        this.conditions = Arrays.asList(conditions);
+    }
+
+    @Override
+    public Money calculateDiscountAmount(Screening screening) {
+        for(DiscountCondition each : conditions) {
+            if (each.isSatisfiedBy(screening)) {
+                return getDiscountAmount(screening);
+            }
+        }
+
+        return Money.ZERO;
+    }
+
+    abstract protected Money getDiscountAmount(Screening Screening);
+}
+```
+
+``` csharp
+using System.Collections.Generic;
+using System.Linq;
+
+public abstract class DefaultDiscountPolicy : DiscountPolicy
+{
+    private DiscountCondition[] conditions;
+
+    public DefaultDiscountPolicy(params DiscountCondition[] conditions) {
+        this.conditions = conditions;
+    }
+
+    public override Money CalculateDiscountAmount(Screening screening) =>
+        conditions.Count(condition => condition.IsSatisfiedBy(screening)) > 0 ?
+        GetDiscountAmount(screening) : Money.ZERO;
+
+    abstract protected Money getDiscountAmount(Screening screening);
+}
+```
+
+</p>
+</details>
+
+트레이드 오프를 설명하는 과정에서 interface의 변경을 설명하고 DefaultDiscountPolicy를 넣은 부분이다. 사실 DiscountPolicy와 크게 다르지 않으므로 추가로 설명할 부분은 없다.
