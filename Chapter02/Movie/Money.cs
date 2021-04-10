@@ -41,5 +41,5 @@ public class Money {
     //     return Objects.hashCode(amount);
     // }
 
-    public override string ToString() => $"{amount}원";
+    public override string ToString() => $"{amount:C0}";
 }
