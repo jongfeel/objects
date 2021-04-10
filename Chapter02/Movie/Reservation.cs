@@ -12,4 +12,6 @@ public class Reservation
         this.fee = fee;
         this.audienceCount = audienceCount;
     }
+
+    public override string ToString() => $"Name: {customer}, Fee: {fee}, audienceCount: {audienceCount}";
 }
