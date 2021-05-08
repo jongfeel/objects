@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 public class Movie {
     private string title;
     private TimeSpan runningTime;
     public Money Fee { private set; get; }
-    public IEnumerable<DiscountCondition> DiscountConditions { private set; get;}
+    public ReadOnlyCollection<DiscountCondition> DiscountConditions { private set; get;}
 
     public MovieType MovieType { private set; get; }
     public Money DiscountAmount { private set; get; }
@@ -35,6 +35,6 @@ public class Movie {
         this.Fee = fee;
         this.DiscountAmount = discountAmount;
         this.DiscountPercent = discountPercent;
-        this.DiscountConditions = discountConditions.AsEnumerable();
+        this.DiscountConditions = Array.AsReadOnly(discountConditions);
     }
 }
