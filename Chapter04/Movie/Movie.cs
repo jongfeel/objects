@@ -13,22 +13,22 @@ public class Movie {
     public double DiscountPercent { private set; get; }
 
     public Movie(string title, TimeSpan runningTime, Money fee, double discountPercent, params DiscountCondition[] discountConditions)
+        : this(MovieType.PERCENT_DISCOUNT, title, runningTime, fee, Money.ZERO, discountPercent, discountConditions)
     {
-        this(MovieType.PERCENT_DISCOUNT, title, runningTime, fee, Money.ZERO, discountPercent, discountConditions);
     }
 
     public Movie(string title, TimeSpan runningTime, Money fee, Money discountAmount, params DiscountCondition[] discountConditions)
-    {
-        this(MovieType.AMOUNT_DISCOUNT, title, runningTime, fee, discountAmount, 0, discountConditions);
+        : this(MovieType.AMOUNT_DISCOUNT, title, runningTime, fee, discountAmount, 0, discountConditions)
+    {    
     }
 
     public Movie(string title, TimeSpan runningTime, Money fee)
-    {
-        this(MovieType.NONE_DISCOUNT, title, runningTime, fee, Money.ZERO, 0);
+        : this(MovieType.NONE_DISCOUNT, title, runningTime, fee, Money.ZERO, 0)
+    {    
     }
 
-    private Movie(MovieType movieType, string title, TimeSpan runningTime, Money fee, Money discountAmount, double discountPercent,
-                  params DiscountCondition[] discountConditions) {
+    private Movie(MovieType movieType, string title, TimeSpan runningTime, Money fee, Money discountAmount, double discountPercent, params DiscountCondition[] discountConditions)
+    {
         this.MovieType = movieType;
         this.title = title;
         this.runningTime = runningTime;
