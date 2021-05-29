@@ -229,3 +229,265 @@ public Movie(string title, TimeSpan runningTime, Money fee, double discountPerce
 그런데 this overload constructor 호출 타이밍을 제어할 수 있다는 점에서 봤을 때 java 쪽이 조금 더 유리한 코드를 작성할 수 있다.
 
 C#은 body에 진입하기 전에 this overload constructor call을 하기 때문에 미리 손 쓸 기회도 없이 시작하기 때문이다.
+
+### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/DiscountCondition.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+
+public class DiscountCondition {
+    private DiscountConditionType type;
+
+    private int sequence;
+
+    private DayOfWeek dayOfWeek;
+    private LocalTime startTime;
+    private LocalTime endTime;
+
+    public DiscountConditionType getType() {
+        return type;
+    }
+
+    public void setType(DiscountConditionType type) {
+        this.type = type;
+    }
+
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
+}
+```
+
+``` csharp
+using System;
+
+public class DiscountCondition
+{
+    public DiscountConditionType Type { set; get; }
+    public int Sequence { set; get; }
+    public DayOfWeek DayOfWeek { set; get; }
+    public TimeSpan StartTime { set; get; }
+    public TimeSpan EndTime { set; get; }
+}
+```
+
+</p>
+</details>
+
+DiscountCondition은 C#의 Property로 그대로 바꾸기만 했다.
+
+### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Screening.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+import java.time.LocalDateTime;
+
+public class Screening {
+    private Movie movie;
+    private int sequence;
+    private LocalDateTime whenScreened;
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+    }
+
+    public LocalDateTime getWhenScreened() {
+        return whenScreened;
+    }
+
+    public void setWhenScreened(LocalDateTime whenScreened) {
+        this.whenScreened = whenScreened;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
+}
+```
+
+``` csharp
+using System;
+
+public class Screening
+{
+    public Movie movie { set; get; }
+    public int sequence { set; get; }
+    public DateTime whenScreened { set; get; }
+}
+```
+
+</p>
+</details>
+
+Screening 역시 Property로 변경한 것 밖에 없다. 왠지 망해가는 class 설계라는게 눈에 보이기 시작한다.
+
+### [Reservation.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Reservation.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Reservation.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+import org.eternity.money.Money;
+
+public class Reservation {
+    private Customer customer;
+    private Screening screening;
+    private Money fee;
+    private int audienceCount;
+
+    public Reservation(Customer customer, Screening screening, Money fee,
+                       int audienceCount) {
+        this.customer = customer;
+        this.screening = screening;
+        this.fee = fee;
+        this.audienceCount = audienceCount;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Screening getScreening() {
+        return screening;
+    }
+
+    public void setScreening(Screening screening) {
+        this.screening = screening;
+    }
+
+    public Money getFee() {
+        return fee;
+    }
+
+    public void setFee(Money fee) {
+        this.fee = fee;
+    }
+
+    public int getAudienceCount() {
+        return audienceCount;
+    }
+
+    public void setAudienceCount(int audienceCount) {
+        this.audienceCount = audienceCount;
+    }
+}
+```
+
+``` csharp
+using System;
+
+public class Reservation
+{
+    public Customer Customer { set; get; }
+    public Screening Screening { set; get; }
+    public Money Fee { set; get; }
+    public int AudienceCount { set; get; }
+
+    public Reservation(Customer customer, Screening screening, Money fee,
+                       int audienceCount) {
+        Customer = customer;
+        Screening = screening;
+        Fee = fee;
+        AudienceCount = audienceCount;
+    }
+}
+```
+
+</p>
+</details>
+
+Reservation은 생성자가 추가된거 빼고는 역시 망해가는 class 설계로 가고 있다.
+
+### [Customer.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Customer.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Customer.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+public class Customer {
+    private String name;
+    private String id;
+
+    public Customer(String name, String id) {
+        this.id = id;
+        this.name = name;
+    }
+}
+```
+
+``` csharp
+public class Customer
+{
+    private string name;
+    private string id;
+
+    public Customer(string name, string id)
+    {
+        this.name = name;
+        this.id = id;
+    }
+}
+```
+
+</p>
+</details>
+
+Customer는 그냥 보여주기식으로 만들었는데 이유는 private field 값 name, id에 constructor로 세팅하는 거 빼고는 하는게 없는 class이기 떄문이다. 그래서 string type에 대해 처음에 대문자냐 소문자냐만 다를 뿐 코드가 똑같다.
