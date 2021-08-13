@@ -491,3 +491,121 @@ public class Customer
 </details>
 
 Customer는 그냥 보여주기식으로 만들었는데 이유는 private field 값 name, id에 constructor로 세팅하는 거 빼고는 하는게 없는 class이기 떄문이다. 그래서 string type에 대해 처음에 대문자냐 소문자냐만 다를 뿐 코드가 똑같다.
+
+### [ReservationAgency.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/ReservationAgency.java) and [ReservationAgency.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/ReservationAgency.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` java
+package org.eternity.movie.step01;
+
+import org.eternity.money.Money;
+
+public class ReservationAgency {
+    public Reservation reserve(Screening screening, Customer customer,
+                               int audienceCount) {
+        Movie movie = screening.getMovie();
+
+        boolean discountable = false;
+        for(DiscountCondition condition : movie.getDiscountConditions()) {
+            if (condition.getType() == DiscountConditionType.PERIOD) {
+                discountable = screening.getWhenScreened().getDayOfWeek().equals(condition.getDayOfWeek()) &&
+                        condition.getStartTime().compareTo(screening.getWhenScreened().toLocalTime()) <= 0 &&
+                        condition.getEndTime().compareTo(screening.getWhenScreened().toLocalTime()) >= 0;
+            } else {
+                discountable = condition.getSequence() == screening.getSequence();
+            }
+
+            if (discountable) {
+                break;
+            }
+        }
+
+        Money fee;
+        if (discountable) {
+            Money discountAmount = Money.ZERO;
+            switch(movie.getMovieType()) {
+                case AMOUNT_DISCOUNT:
+                    discountAmount = movie.getDiscountAmount();
+                    break;
+                case PERCENT_DISCOUNT:
+                    discountAmount = movie.getFee().times(movie.getDiscountPercent());
+                    break;
+                case NONE_DISCOUNT:
+                    discountAmount = Money.ZERO;
+                    break;
+            }
+
+            fee = movie.getFee().minus(discountAmount).times(audienceCount);
+        } else {
+            fee = movie.getFee().times(audienceCount);
+        }
+
+        return new Reservation(customer, screening, fee, audienceCount);
+    }
+}
+```
+
+``` csharp
+
+public class ReservationAgency
+{
+    public Reservation Reserve(Screening screening, Customer customer, int audienceCount)
+    {
+        Movie movie = screening.Movie;
+
+        bool discountable = false;
+        foreach (DiscountCondition condition in movie.DiscountConditions)
+        {
+            if (condition.Type == DiscountConditionType.PERIOD)
+            {
+                discountable = screening.WhenScreened.DayOfWeek == condition.DayOfWeek &&
+                        condition.StartTime <= screening.WhenScreened &&
+                        condition.EndTime >= screening.WhenScreened;
+            }
+            else
+            {
+                discountable = condition.Sequence == screening.Sequence;
+            }
+
+            if (discountable)
+            {
+                break;
+            }
+        }
+
+        Money fee;
+        if (discountable)
+        {
+            Money discountAmount = Money.ZERO;
+            switch (movie.MovieType)
+            {
+                case MovieType.AMOUNT_DISCOUNT:
+                    discountAmount = movie.DiscountAmount;
+                    break;
+                case MovieType.PERCENT_DISCOUNT:
+                    discountAmount = movie.Fee * movie.DiscountPercent;
+                    break;
+                case MovieType.NONE_DISCOUNT:
+                    discountAmount = Money.ZERO;
+                    break;
+            }
+
+            fee = (movie.Fee - discountAmount) * audienceCount;
+        }
+        else
+        {
+            fee = movie.Fee * audienceCount;
+        }
+
+        return new Reservation(customer, screening, fee, audienceCount);
+    }
+}
+```
+
+</p>
+</details>
+
+Java로 하나 C#으로 하나 형편없는 클래스 수준은 변함이 없다. 그나마 method chaining에 의한 코드 읽기가 아닌 산술 계산식에 의한 코드 읽기로 변한 거 정도가 차이점이라고 볼 수 있다. 특히 Money class의 operator overloading은 이 클래스에서도 빛을 발한다.
