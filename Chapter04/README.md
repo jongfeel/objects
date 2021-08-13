@@ -230,7 +230,7 @@ public Movie(string title, TimeSpan runningTime, Money fee, double discountPerce
 
 C#은 body에 진입하기 전에 this overload constructor call을 하기 때문에 미리 손 쓸 기회도 없이 시작하기 때문이다.
 
-### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/DiscountCondition.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
+### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/DiscountCondition.java) and [DiscountCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
 
 <details>
 <summary>Code</summary>
@@ -311,7 +311,7 @@ public class DiscountCondition
 
 DiscountCondition은 C#의 Property로 그대로 바꾸기만 했다.
 
-### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Screening.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
+### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
 
 <details>
 <summary>Code</summary>
@@ -369,7 +369,7 @@ public class Screening
 
 Screening 역시 Property로 변경한 것 밖에 없다. 왠지 망해가는 class 설계라는게 눈에 보이기 시작한다.
 
-### [Reservation.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Reservation.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Reservation.cs)
+### [Reservation.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Reservation.java) and [Reservation.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Reservation.cs)
 
 <details>
 <summary>Code</summary>
@@ -453,7 +453,7 @@ public class Reservation
 
 Reservation은 생성자가 추가된거 빼고는 역시 망해가는 class 설계로 가고 있다.
 
-### [Customer.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Customer.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Customer.cs)
+### [Customer.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Customer.java) and [Customer.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Customer.cs)
 
 <details>
 <summary>Code</summary>
