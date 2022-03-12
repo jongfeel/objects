@@ -28,12 +28,16 @@ C#이기 때문에 자연스럽게 .NET Core로 진행하는게 맞을 텐데 .N
 
 ## Contents
 
-### Chapter 01
+### Chapter 01 객체, 설계
 
 - [Java and C# code review](/Chapter01/Object_Design/)
 - [Test program](/Chapter01/TestProgram/)
 - [Improved design](/Chapter01/ImprovedDesign/)
 
-### Chapter 02
+### Chapter 02 객체지향 프로그래밍
 
 - [Java and C# code review](/Chapter02/)
+
+### Chapter 04 설계 품질과 트레이드오프
+
+- [Java and C# code review](/Chapter04/)
