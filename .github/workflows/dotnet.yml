@@ -7,21 +7,26 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  Build and Test:
 
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./Chapter01/UnitTest
 
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore ./Chapter01/UnitTest
+        dotnet-version: 6.0.x
+    - name: Restore dependencies => Chapter01/UnitTest
+      run: dotnet restore Chapter01/UnitTest
     - name: Build => Chapter01/UnitTest
       run: dotnet build Chapter01/UnitTest --no-restore
     - name: Test => Chapter01/UnitTest 
       run: dotnet test Chapter01/UnitTest --no-build --verbosity normal
+    
+    - name: Restore dependencies => Chapter04/UnitTest
+      run: dotnet restore Chapter04/UnitTest
+    - name: Build => Chapter04/UnitTest
+      run: dotnet build Chapter04/UnitTest --no-restore
+    - name: Test => Chapter04/UnitTest 
+      run: dotnet test Chapter04/UnitTest --no-build --verbosity normal
