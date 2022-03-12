@@ -21,20 +21,22 @@ Movie program
 
 ## Code review
 
-### [Movie.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Movie.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Movie.cs)
+### [Movie.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/Movie.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Movie.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
 
 import org.eternity.money.Money;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Movie {
@@ -74,40 +76,44 @@ public class Movie {
         return movieType;
     }
 
-    public void setMovieType(MovieType movieType) {
-        this.movieType = movieType;
+    public Money calculateAmountDiscountedFee() {
+        if (movieType != MovieType.AMOUNT_DISCOUNT) {
+            throw new IllegalArgumentException();
+        }
+
+        return fee.minus(discountAmount);
     }
 
-    public Money getFee() {
+    public Money calculatePercentDiscountedFee() {
+        if (movieType != MovieType.PERCENT_DISCOUNT) {
+            throw new IllegalArgumentException();
+        }
+
+        return fee.minus(fee.times(discountPercent));
+    }
+
+    public Money calculateNoneDiscountedFee() {
+        if (movieType != MovieType.NONE_DISCOUNT) {
+            throw new IllegalArgumentException();
+        }
+
         return fee;
     }
 
-    public void setFee(Money fee) {
-        this.fee = fee;
-    }
+    public boolean isDiscountable(LocalDateTime whenScreened, int sequence) {
+        for(DiscountCondition condition : discountConditions) {
+            if (condition.getType() == DiscountConditionType.PERIOD) {
+                if (condition.isDiscountable(whenScreened.getDayOfWeek(), whenScreened.toLocalTime())) {
+                    return true;
+                }
+            } else {
+                if (condition.isDiscountable(sequence)) {
+                    return true;
+                }
+            }
+        }
 
-    public List<DiscountCondition> getDiscountConditions() {
-        return Collections.unmodifiableList(discountConditions);
-    }
-
-    public void setDiscountConditions(List<DiscountCondition> discountConditions) {
-        this.discountConditions = discountConditions;
-    }
-
-    public Money getDiscountAmount() {
-        return discountAmount;
-    }
-
-    public void setDiscountAmount(Money discountAmount) {
-        this.discountAmount = discountAmount;
-    }
-
-    public double getDiscountPercent() {
-        return discountPercent;
-    }
-
-    public void setDiscountPercent(double discountPercent) {
-        this.discountPercent = discountPercent;
+        return false;
     }
 }
 ```
@@ -151,6 +157,32 @@ public class Movie {
         this.DiscountPercent = discountPercent;
         this.DiscountConditions = Array.AsReadOnly(discountConditions);
     }
+
+    public Money CalculateAmountDiscountedFee => MovieType == MovieType.AMOUNT_DISCOUNT ? Fee - DiscountAmount : Money.ZERO;
+
+    public Money CalculatePercentDiscountedFee => MovieType == MovieType.PERCENT_DISCOUNT ? Fee - (Fee * DiscountPercent) : Money.ZERO;
+
+    public Money CalculateNoneDiscountedFee => MovieType == MovieType.NONE_DISCOUNT ? Fee : Money.ZERO;
+
+    public bool IsDiscountable(DateTime whenScreened, int sequence)
+    {
+        foreach (DiscountCondition condition in DiscountConditions)
+        {
+            if (condition.Type == DiscountConditionType.PERIOD && condition.IsDiscountable(whenScreened.DayOfWeek, whenScreened))
+            {
+                return true;
+            }
+            else
+            {
+                if (condition.IsDiscountable(sequence))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 ```
 
@@ -162,6 +194,10 @@ public class Movie {
 Movie.java를 Movie.cs로 바꾸면서 느낄 수 있는 가장 큰 변화는 역시 getter, setter를 한번에 묶어주는 C#의 property 문법이다.
 
 Java의 이런 문법은 Lombok을 쓰고 싶게 만드는 매우 흔한 getter, setter 문법이다.
+
+추가로 04 자율적인 객체 내용에서 설계 변경이 일어나는데, 느낌상 어쩔 수 없이 Movie에도 DiscountCondition에 따라 메서드가 추가된 느낌이 강하다. 파라미터도 그대로 받고 foreach, if문으로 이어지는 코드는 진짜 어쩔 수 없이 따라가는 코드라는 느낌만 잔뜩 준다.
+
+각 MovieType에 따른 DiscountFee 계산 하는 부분은 DiscountCondition과 마찬가지로 예외 처리를 하지 않고 할인이 적용되면 해당 할인 적용을 그렇지 않으면 Money.ZERO를 통해 할인이 안된다는 방식의 ternary operator(삼항연산자)를 사용했다.
 
 ``` java
 private Money fee;
@@ -230,14 +266,14 @@ public Movie(string title, TimeSpan runningTime, Money fee, double discountPerce
 
 C#은 body에 진입하기 전에 this overload constructor call을 하기 때문에 미리 손 쓸 기회도 없이 시작하기 때문이다.
 
-### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/DiscountCondition.java) and [DiscountCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
+### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/DiscountCondition.java) and [DiscountCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -251,44 +287,38 @@ public class DiscountCondition {
     private LocalTime startTime;
     private LocalTime endTime;
 
+    public DiscountCondition(int sequence){
+        this.type = DiscountConditionType.SEQUENCE;
+        this.sequence = sequence;
+    }
+
+    public DiscountCondition(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime){
+        this.type = DiscountConditionType.PERIOD;
+        this.dayOfWeek= dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     public DiscountConditionType getType() {
         return type;
     }
 
-    public void setType(DiscountConditionType type) {
-        this.type = type;
+    public boolean isDiscountable(DayOfWeek dayOfWeek, LocalTime time) {
+        if (type != DiscountConditionType.PERIOD) {
+            throw new IllegalArgumentException();
+        }
+
+        return this.dayOfWeek.equals(dayOfWeek) &&
+                this.startTime.compareTo(time) <= 0 &&
+                this.endTime.compareTo(time) >= 0;
     }
 
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
+    public boolean isDiscountable(int sequence) {
+        if (type != DiscountConditionType.SEQUENCE) {
+            throw new IllegalArgumentException();
+        }
 
-    public void setDayOfWeek(DayOfWeek dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public int getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
+        return this.sequence == sequence;
     }
 }
 ```
@@ -303,6 +333,9 @@ public class DiscountCondition
     public DayOfWeek DayOfWeek { set; get; }
     public TimeSpan StartTime { set; get; }
     public TimeSpan EndTime { set; get; }
+
+    public bool IsDiscountable(DayOfWeek dayOfWeek, DateTime time) => Type == DiscountConditionType.PERIOD ? DayOfWeek == dayOfWeek && StartTime < time && EndTime > time : false;
+    public bool IsDiscountable(int sequence) => Type == DiscountConditionType.SEQUENCE ? Sequence == sequence : false;
 }
 ```
 
@@ -311,14 +344,24 @@ public class DiscountCondition
 
 DiscountCondition은 C#의 Property로 그대로 바꾸기만 했다.
 
-### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
+04 자율적인 객체 내용에서 설계 변경이 일어나는데, 나름 IsDiscountable() overload 메서드를 준비했지만 솔직히 이렇게 만들면 안된다는게 느껴질 정도다.
+
+두 메서드는 특별히 C#으로 바꾸면서 리팩토링을 진행했는데 다음과 같다.
+
+- Type이 PERIOD, SEQUENCE 2개 밖에 없는데, 굳이 exception으로 던질 이유가 없으므로 true condtion으로 변경 (java 코드는 IlligalArgumentExcpetion을 던진다)
+- return 되어야 하는 값이 bool 이므로 true condition이 아니면 자연스럽게 false로 처리
+- ternary operator(삼항연산자)를 사용해서 한줄로 코딩
+
+### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
+
+import org.eternity.money.Money;
 
 import java.time.LocalDateTime;
 
@@ -327,28 +370,28 @@ public class Screening {
     private int sequence;
     private LocalDateTime whenScreened;
 
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
+    public Screening(Movie movie, int sequence, LocalDateTime whenScreened) {
         this.movie = movie;
-    }
-
-    public LocalDateTime getWhenScreened() {
-        return whenScreened;
-    }
-
-    public void setWhenScreened(LocalDateTime whenScreened) {
+        this.sequence = sequence;
         this.whenScreened = whenScreened;
     }
 
-    public int getSequence() {
-        return sequence;
-    }
+    public Money calculateFee(int audienceCount) {
+        switch (movie.getMovieType()) {
+            case AMOUNT_DISCOUNT:
+                if (movie.isDiscountable(whenScreened, sequence)) {
+                    return movie.calculateAmountDiscountedFee().times(audienceCount);
+                }
+                break;
+            case PERCENT_DISCOUNT:
+                if (movie.isDiscountable(whenScreened, sequence)) {
+                    return movie.calculatePercentDiscountedFee().times(audienceCount);
+                }
+            case NONE_DISCOUNT:
+                movie.calculateNoneDiscountedFee().times(audienceCount);
+        }
 
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
+        return movie.calculateNoneDiscountedFee().times(audienceCount);
     }
 }
 ```
@@ -361,6 +404,24 @@ public class Screening
     public Movie movie { set; get; }
     public int sequence { set; get; }
     public DateTime whenScreened { set; get; }
+
+    public Money CalculateFee(int audienceCount)
+    {
+        Money money = Movie.CalculateNoneDiscountedFee;
+        if (Movie.IsDiscountable(WhenScreened, Sequence))
+        {
+            if (Movie.MovieType == MovieType.AMOUNT_DISCOUNT)
+            {
+                money = Movie.CalculateAmountDiscountedFee;
+            }
+            else if (Movie.MovieType == MovieType.PERCENT_DISCOUNT)
+            {
+                money = Movie.CalculatePercentDiscountedFee;
+            }
+        }
+
+        return money * audienceCount;
+    }
 }
 ```
 
@@ -368,6 +429,16 @@ public class Screening
 </details>
 
 Screening 역시 Property로 변경한 것 밖에 없다. 왠지 망해가는 class 설계라는게 눈에 보이기 시작한다.
+
+04 자율적인 객체 내용에서 설계 변경이 일어나는데, 뭔가 개선이 되는 것처럼 보이지만 책 마지막에 설명한 것과 같이 끝은 아닌 그런 시원치 않은 개선 정도다.
+
+Java의 원래 메서드와 다르게 리팩토링 한 점은 아래와 같다.
+
+- switch if 문의 순서로 계산한게 아니라, if switch 문의 순서로 계산
+  - 이유는 movie type 중에서는 NONE_DISCOUNT의 경우 따로 계산할 필요가 없기 떄문이다.
+  - Movie.IsDiscountable() 메서드가 중복 if 문이라는게 눈에 너무 띄기 때문에라도 순서를 바꾸게 됐다.
+- 매번 audienceCount를 계산하는데, 미리 discount fee가 계산이 되면 그 이후에 한번에 해도 무방한 곱셈이라서 그렇다.
+- discount type이 결정되자 마자 return이 되는 방식이 아니라 CalculateNoneDiscountedFee 값의 경우 default 라고 생각해 보면 fee 계산이 끝난 이후 최종적으로 return 되는 방식으로 진행
 
 ### [Reservation.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Reservation.java) and [Reservation.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Reservation.cs)
 
@@ -492,57 +563,20 @@ public class Customer
 
 Customer는 그냥 보여주기식으로 만들었는데 이유는 private field 값 name, id에 constructor로 세팅하는 거 빼고는 하는게 없는 class이기 떄문이다. 그래서 string type에 대해 처음에 대문자냐 소문자냐만 다를 뿐 코드가 똑같다.
 
-### [ReservationAgency.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/ReservationAgency.java) and [ReservationAgency.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/ReservationAgency.cs)
+### [ReservationAgency.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/ReservationAgency.java) and [ReservationAgency.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/ReservationAgency.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
 
 import org.eternity.money.Money;
 
 public class ReservationAgency {
-    public Reservation reserve(Screening screening, Customer customer,
-                               int audienceCount) {
-        Movie movie = screening.getMovie();
-
-        boolean discountable = false;
-        for(DiscountCondition condition : movie.getDiscountConditions()) {
-            if (condition.getType() == DiscountConditionType.PERIOD) {
-                discountable = screening.getWhenScreened().getDayOfWeek().equals(condition.getDayOfWeek()) &&
-                        condition.getStartTime().compareTo(screening.getWhenScreened().toLocalTime()) <= 0 &&
-                        condition.getEndTime().compareTo(screening.getWhenScreened().toLocalTime()) >= 0;
-            } else {
-                discountable = condition.getSequence() == screening.getSequence();
-            }
-
-            if (discountable) {
-                break;
-            }
-        }
-
-        Money fee;
-        if (discountable) {
-            Money discountAmount = Money.ZERO;
-            switch(movie.getMovieType()) {
-                case AMOUNT_DISCOUNT:
-                    discountAmount = movie.getDiscountAmount();
-                    break;
-                case PERCENT_DISCOUNT:
-                    discountAmount = movie.getFee().times(movie.getDiscountPercent());
-                    break;
-                case NONE_DISCOUNT:
-                    discountAmount = Money.ZERO;
-                    break;
-            }
-
-            fee = movie.getFee().minus(discountAmount).times(audienceCount);
-        } else {
-            fee = movie.getFee().times(audienceCount);
-        }
-
+    public Reservation reserve(Screening screening, Customer customer, int audienceCount) {
+        Money fee = screening.calculateFee(audienceCount);
         return new Reservation(customer, screening, fee, audienceCount);
     }
 }
@@ -552,60 +586,13 @@ public class ReservationAgency {
 
 public class ReservationAgency
 {
-    public Reservation Reserve(Screening screening, Customer customer, int audienceCount)
-    {
-        Movie movie = screening.Movie;
-
-        bool discountable = false;
-        foreach (DiscountCondition condition in movie.DiscountConditions)
-        {
-            if (condition.Type == DiscountConditionType.PERIOD)
-            {
-                discountable = screening.WhenScreened.DayOfWeek == condition.DayOfWeek &&
-                        condition.StartTime <= screening.WhenScreened &&
-                        condition.EndTime >= screening.WhenScreened;
-            }
-            else
-            {
-                discountable = condition.Sequence == screening.Sequence;
-            }
-
-            if (discountable)
-            {
-                break;
-            }
-        }
-
-        Money fee;
-        if (discountable)
-        {
-            Money discountAmount = Money.ZERO;
-            switch (movie.MovieType)
-            {
-                case MovieType.AMOUNT_DISCOUNT:
-                    discountAmount = movie.DiscountAmount;
-                    break;
-                case MovieType.PERCENT_DISCOUNT:
-                    discountAmount = movie.Fee * movie.DiscountPercent;
-                    break;
-                case MovieType.NONE_DISCOUNT:
-                    discountAmount = Money.ZERO;
-                    break;
-            }
-
-            fee = (movie.Fee - discountAmount) * audienceCount;
-        }
-        else
-        {
-            fee = movie.Fee * audienceCount;
-        }
-
-        return new Reservation(customer, screening, fee, audienceCount);
-    }
+    public Reservation Reserve(Screening screening, Customer customer, int audienceCount) => new Reservation(customer, screening, screening.CalculateFee(audienceCount), audienceCount);
 }
 ```
 
 </p>
 </details>
 
-Java로 하나 C#으로 하나 형편없는 클래스 수준은 변함이 없다. 그나마 method chaining에 의한 코드 읽기가 아닌 산술 계산식에 의한 코드 읽기로 변한 거 정도가 차이점이라고 볼 수 있다. 특히 Money class의 operator overloading은 이 클래스에서도 빛을 발한다.
+04 자율적인 객체 내용에서 설계 변경이 일어나는데, ReservationAgency class는 상당히 단순한 구조로 변하고 모든 Reservation에 필요한 건 screening에 맡기는 구조로 변경했다.
+
+책에서도 언급하지만 사실 이정도 구조 변경도 꽤나 쓸모 있을 수 있지만 문제는 아직 있는 것 맞다.

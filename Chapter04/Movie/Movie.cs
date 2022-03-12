@@ -36,4 +36,30 @@ public class Movie {
         this.DiscountPercent = discountPercent;
         this.DiscountConditions = Array.AsReadOnly(discountConditions);
     }
+
+    public Money CalculateAmountDiscountedFee => MovieType == MovieType.AMOUNT_DISCOUNT ? Fee - DiscountAmount : Money.ZERO;
+
+    public Money CalculatePercentDiscountedFee => MovieType == MovieType.PERCENT_DISCOUNT ? Fee - (Fee * DiscountPercent) : Money.ZERO;
+
+    public Money CalculateNoneDiscountedFee => MovieType == MovieType.NONE_DISCOUNT ? Fee : Money.ZERO;
+
+    public bool IsDiscountable(DateTime whenScreened, int sequence)
+    {
+        foreach (DiscountCondition condition in DiscountConditions)
+        {
+            if (condition.Type == DiscountConditionType.PERIOD && condition.IsDiscountable(whenScreened.DayOfWeek, whenScreened))
+            {
+                return true;
+            }
+            else
+            {
+                if (condition.IsDiscountable(sequence))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
