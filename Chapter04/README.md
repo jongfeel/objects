@@ -21,20 +21,22 @@ Movie program
 
 ## Code review
 
-### [Movie.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Movie.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Movie.cs)
+### [Movie.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/Movie.java) and [Movie.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Movie.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
 
 import org.eternity.money.Money;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Movie {
@@ -74,40 +76,44 @@ public class Movie {
         return movieType;
     }
 
-    public void setMovieType(MovieType movieType) {
-        this.movieType = movieType;
+    public Money calculateAmountDiscountedFee() {
+        if (movieType != MovieType.AMOUNT_DISCOUNT) {
+            throw new IllegalArgumentException();
+        }
+
+        return fee.minus(discountAmount);
     }
 
-    public Money getFee() {
+    public Money calculatePercentDiscountedFee() {
+        if (movieType != MovieType.PERCENT_DISCOUNT) {
+            throw new IllegalArgumentException();
+        }
+
+        return fee.minus(fee.times(discountPercent));
+    }
+
+    public Money calculateNoneDiscountedFee() {
+        if (movieType != MovieType.NONE_DISCOUNT) {
+            throw new IllegalArgumentException();
+        }
+
         return fee;
     }
 
-    public void setFee(Money fee) {
-        this.fee = fee;
-    }
+    public boolean isDiscountable(LocalDateTime whenScreened, int sequence) {
+        for(DiscountCondition condition : discountConditions) {
+            if (condition.getType() == DiscountConditionType.PERIOD) {
+                if (condition.isDiscountable(whenScreened.getDayOfWeek(), whenScreened.toLocalTime())) {
+                    return true;
+                }
+            } else {
+                if (condition.isDiscountable(sequence)) {
+                    return true;
+                }
+            }
+        }
 
-    public List<DiscountCondition> getDiscountConditions() {
-        return Collections.unmodifiableList(discountConditions);
-    }
-
-    public void setDiscountConditions(List<DiscountCondition> discountConditions) {
-        this.discountConditions = discountConditions;
-    }
-
-    public Money getDiscountAmount() {
-        return discountAmount;
-    }
-
-    public void setDiscountAmount(Money discountAmount) {
-        this.discountAmount = discountAmount;
-    }
-
-    public double getDiscountPercent() {
-        return discountPercent;
-    }
-
-    public void setDiscountPercent(double discountPercent) {
-        this.discountPercent = discountPercent;
+        return false;
     }
 }
 ```
@@ -151,6 +157,32 @@ public class Movie {
         this.DiscountPercent = discountPercent;
         this.DiscountConditions = Array.AsReadOnly(discountConditions);
     }
+
+    public Money CalculateAmountDiscountedFee => MovieType == MovieType.AMOUNT_DISCOUNT ? Fee - DiscountAmount : Money.ZERO;
+
+    public Money CalculatePercentDiscountedFee => MovieType == MovieType.PERCENT_DISCOUNT ? Fee - (Fee * DiscountPercent) : Money.ZERO;
+
+    public Money CalculateNoneDiscountedFee => MovieType == MovieType.NONE_DISCOUNT ? Fee : Money.ZERO;
+
+    public bool IsDiscountable(DateTime whenScreened, int sequence)
+    {
+        foreach (DiscountCondition condition in DiscountConditions)
+        {
+            if (condition.Type == DiscountConditionType.PERIOD && condition.IsDiscountable(whenScreened.DayOfWeek, whenScreened))
+            {
+                return true;
+            }
+            else
+            {
+                if (condition.IsDiscountable(sequence))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 ```
 
@@ -162,6 +194,10 @@ public class Movie {
 Movie.java를 Movie.cs로 바꾸면서 느낄 수 있는 가장 큰 변화는 역시 getter, setter를 한번에 묶어주는 C#의 property 문법이다.
 
 Java의 이런 문법은 Lombok을 쓰고 싶게 만드는 매우 흔한 getter, setter 문법이다.
+
+추가로 04 자율적인 객체 내용에서 설계 변경이 일어나는데, 느낌상 어쩔 수 없이 Movie에도 DiscountCondition에 따라 메서드가 추가된 느낌이 강하다. 파라미터도 그대로 받고 foreach, if문으로 이어지는 코드는 진짜 어쩔 수 없이 따라가는 코드라는 느낌만 잔뜩 준다.
+
+각 MovieType에 따른 DiscountFee 계산 하는 부분은 DiscountCondition과 마찬가지로 예외 처리를 하지 않고 할인이 적용되면 해당 할인 적용을 그렇지 않으면 Money.ZERO를 통해 할인이 안된다는 방식의 ternary operator(삼항연산자)를 사용했다.
 
 ``` java
 private Money fee;
@@ -230,14 +266,14 @@ public Movie(string title, TimeSpan runningTime, Money fee, double discountPerce
 
 C#은 body에 진입하기 전에 this overload constructor call을 하기 때문에 미리 손 쓸 기회도 없이 시작하기 때문이다.
 
-### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/DiscountCondition.java) and [DiscountCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
+### [DiscountCondition.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/DiscountCondition.java) and [DiscountCondition.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/DiscountCondition.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -251,44 +287,38 @@ public class DiscountCondition {
     private LocalTime startTime;
     private LocalTime endTime;
 
+    public DiscountCondition(int sequence){
+        this.type = DiscountConditionType.SEQUENCE;
+        this.sequence = sequence;
+    }
+
+    public DiscountCondition(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime){
+        this.type = DiscountConditionType.PERIOD;
+        this.dayOfWeek= dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     public DiscountConditionType getType() {
         return type;
     }
 
-    public void setType(DiscountConditionType type) {
-        this.type = type;
+    public boolean isDiscountable(DayOfWeek dayOfWeek, LocalTime time) {
+        if (type != DiscountConditionType.PERIOD) {
+            throw new IllegalArgumentException();
+        }
+
+        return this.dayOfWeek.equals(dayOfWeek) &&
+                this.startTime.compareTo(time) <= 0 &&
+                this.endTime.compareTo(time) >= 0;
     }
 
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
+    public boolean isDiscountable(int sequence) {
+        if (type != DiscountConditionType.SEQUENCE) {
+            throw new IllegalArgumentException();
+        }
 
-    public void setDayOfWeek(DayOfWeek dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public int getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
+        return this.sequence == sequence;
     }
 }
 ```
@@ -303,6 +333,9 @@ public class DiscountCondition
     public DayOfWeek DayOfWeek { set; get; }
     public TimeSpan StartTime { set; get; }
     public TimeSpan EndTime { set; get; }
+
+    public bool IsDiscountable(DayOfWeek dayOfWeek, DateTime time) => Type == DiscountConditionType.PERIOD ? DayOfWeek == dayOfWeek && StartTime < time && EndTime > time : false;
+    public bool IsDiscountable(int sequence) => Type == DiscountConditionType.SEQUENCE ? Sequence == sequence : false;
 }
 ```
 
@@ -310,6 +343,14 @@ public class DiscountCondition
 </details>
 
 DiscountCondition은 C#의 Property로 그대로 바꾸기만 했다.
+
+04 자율적인 객체 내용에서 설계 변경이 일어나는데, 나름 IsDiscountable() overload 메서드를 준비했지만 솔직히 이렇게 만들면 안된다는게 느껴질 정도다.
+
+두 메서드는 특별히 C#으로 바꾸면서 리팩토링을 진행했는데 다음과 같다.
+
+- Type이 PERIOD, SEQUENCE 2개 밖에 없는데, 굳이 exception으로 던질 이유가 없으므로 true condtion으로 변경 (java 코드는 IlligalArgumentExcpetion을 던진다)
+- return 되어야 하는 값이 bool 이므로 true condition이 아니면 자연스럽게 false로 처리
+- ternary operator(삼항연산자)를 사용해서 한줄로 코딩
 
 ### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
 
