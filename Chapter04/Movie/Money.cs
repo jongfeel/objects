@@ -24,22 +24,26 @@ public class Money {
 
     public static bool operator <=(Money a, Money b) => a.amount >= b.amount;
 
-    // public boolean equals(Object object) {
-    //     if (this == object) {
-    //         return true;
-    //     }
+    public override bool Equals(object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
 
-    //     if (!(object instanceof Money)) {
-    //         return false;
-    //     }
+        if (obj is not Money)
+        {
+            return false;
+        }
 
-    //     Money other = (Money)object;
-    //     return Objects.equals(amount.doubleValue(), other.amount.doubleValue());
-    // }
+        Money other = obj as Money;
+        return object.Equals(amount, other.amount);
+    }
 
-    // public int hashCode() {
-    //     return Objects.hashCode(amount);
-    // }
+    public override int GetHashCode()
+    {
+        return amount.GetHashCode();
+    }
 
     public override string ToString() => $"{amount:C0}";
 }
