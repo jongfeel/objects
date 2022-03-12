@@ -352,14 +352,16 @@ DiscountCondition은 C#의 Property로 그대로 바꾸기만 했다.
 - return 되어야 하는 값이 bool 이므로 true condition이 아니면 자연스럽게 false로 처리
 - ternary operator(삼항연산자)를 사용해서 한줄로 코딩
 
-### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
+### [Screening.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step02/Screening.java) and [Screening.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Screening.cs)
 
 <details>
 <summary>Code</summary>
 <p>
 
 ``` java
-package org.eternity.movie.step01;
+package org.eternity.movie.step02;
+
+import org.eternity.money.Money;
 
 import java.time.LocalDateTime;
 
@@ -368,28 +370,28 @@ public class Screening {
     private int sequence;
     private LocalDateTime whenScreened;
 
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
+    public Screening(Movie movie, int sequence, LocalDateTime whenScreened) {
         this.movie = movie;
-    }
-
-    public LocalDateTime getWhenScreened() {
-        return whenScreened;
-    }
-
-    public void setWhenScreened(LocalDateTime whenScreened) {
+        this.sequence = sequence;
         this.whenScreened = whenScreened;
     }
 
-    public int getSequence() {
-        return sequence;
-    }
+    public Money calculateFee(int audienceCount) {
+        switch (movie.getMovieType()) {
+            case AMOUNT_DISCOUNT:
+                if (movie.isDiscountable(whenScreened, sequence)) {
+                    return movie.calculateAmountDiscountedFee().times(audienceCount);
+                }
+                break;
+            case PERCENT_DISCOUNT:
+                if (movie.isDiscountable(whenScreened, sequence)) {
+                    return movie.calculatePercentDiscountedFee().times(audienceCount);
+                }
+            case NONE_DISCOUNT:
+                movie.calculateNoneDiscountedFee().times(audienceCount);
+        }
 
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
+        return movie.calculateNoneDiscountedFee().times(audienceCount);
     }
 }
 ```
@@ -402,6 +404,24 @@ public class Screening
     public Movie movie { set; get; }
     public int sequence { set; get; }
     public DateTime whenScreened { set; get; }
+
+    public Money CalculateFee(int audienceCount)
+    {
+        Money money = Movie.CalculateNoneDiscountedFee;
+        if (Movie.IsDiscountable(WhenScreened, Sequence))
+        {
+            if (Movie.MovieType == MovieType.AMOUNT_DISCOUNT)
+            {
+                money = Movie.CalculateAmountDiscountedFee;
+            }
+            else if (Movie.MovieType == MovieType.PERCENT_DISCOUNT)
+            {
+                money = Movie.CalculatePercentDiscountedFee;
+            }
+        }
+
+        return money * audienceCount;
+    }
 }
 ```
 
@@ -409,6 +429,16 @@ public class Screening
 </details>
 
 Screening 역시 Property로 변경한 것 밖에 없다. 왠지 망해가는 class 설계라는게 눈에 보이기 시작한다.
+
+04 자율적인 객체 내용에서 설계 변경이 일어나는데, 뭔가 개선이 되는 것처럼 보이지만 책 마지막에 설명한 것과 같이 끝은 아닌 그런 시원치 않은 개선 정도다.
+
+Java의 원래 메서드와 다르게 리팩토링 한 점은 아래와 같다.
+
+- switch if 문의 순서로 계산한게 아니라, if switch 문의 순서로 계산
+  - 이유는 movie type 중에서는 NONE_DISCOUNT의 경우 따로 계산할 필요가 없기 떄문이다.
+  - Movie.IsDiscountable() 메서드가 중복 if 문이라는게 눈에 너무 띄기 때문에라도 순서를 바꾸게 됐다.
+- 매번 audienceCount를 계산하는데, 미리 discount fee가 계산이 되면 그 이후에 한번에 해도 무방한 곱셈이라서 그렇다.
+- discount type이 결정되자 마자 return이 되는 방식이 아니라 CalculateNoneDiscountedFee 값의 경우 default 라고 생각해 보면 fee 계산이 끝난 이후 최종적으로 return 되는 방식으로 진행
 
 ### [Reservation.java](https://github.com/eternity-oop/object/blob/master/chapter04/src/main/java/org/eternity/movie/step01/Reservation.java) and [Reservation.cs](https://github.com/jongfeel/objects/blob/main/Chapter04/Movie/Reservation.cs)
 
