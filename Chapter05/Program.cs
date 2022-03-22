@@ -2,16 +2,20 @@
 Console.WriteLine("Chapter 05, Movie program");
 
 // Reservation movie by DiscountCondition
-DiscountCondition dc = new DiscountCondition();
-dc.Type = DiscountConditionType.PERIOD;
-dc.DayOfWeek = DayOfWeek.Saturday;
-dc.StartTime = new DateTime(2022, 3, 19, 12, 0, 0);
-dc.EndTime = new DateTime(2022, 3, 19, 22, 0, 0);
+PeriodCondition periodCondition = new PeriodCondition(
+    DayOfWeek.Wednesday,
+    new DateTime(2022, 3, 23, 12, 0, 0),
+    new DateTime(2022, 3, 23, 22, 0, 0)
+);
 
-Movie theBatman = new Movie(new DiscountCondition[] { dc });
-theBatman.Fee = Money.Wons(14000);
-theBatman.MovieType = MovieType.AMOUNT_DISCOUNT;
+SequenceCondition sequenceCondition = new SequenceCondition(1);
+
+Movie theBatman = new Movie("The Batman", TimeSpan.FromMinutes(176), Money.Wons(14000),
+    new List<PeriodCondition>() { periodCondition },
+    new List<SequenceCondition>() { sequenceCondition }
+);
 theBatman.DiscountAmount = Money.Wons(2000);
+theBatman.DiscountPercent = 0.1;
 
 Screening screening = new Screening();
 screening.Movie = theBatman;
