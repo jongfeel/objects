@@ -1,4 +1,4 @@
-public class PeriodCondition
+public class PeriodCondition : DiscountCondition
 {
     public DayOfWeek DayOfWeek { private set; get; }
     public DateTime StartTime { private set; get; }

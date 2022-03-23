@@ -21,8 +21,7 @@ public class MovieTest
         SequenceCondition sequenceCondition = new SequenceCondition(1);
 
         Movie theBatman = new Movie("The Batman", TimeSpan.FromMinutes(176), Money.Wons(14000),
-            new List<PeriodCondition>() { periodCondition },
-            new List<SequenceCondition>() { sequenceCondition }
+            new List<DiscountCondition>() { periodCondition, sequenceCondition }
         );
         theBatman.DiscountAmount = Money.Wons(2000);
         theBatman.DiscountPercent = 0.1;

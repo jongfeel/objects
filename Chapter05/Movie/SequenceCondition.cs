@@ -1,4 +1,4 @@
-public class SequenceCondition
+public class SequenceCondition : DiscountCondition
 {
     public int Sequence { private set; get; }
 

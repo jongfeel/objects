@@ -5,20 +5,18 @@ public class Movie {
     public string Title { private set; get; }
     public TimeSpan RunningTime { private set; get; }
     public Money Fee { set; get; }
-    private List<PeriodCondition> PeriodConditions;
-    private List<SequenceCondition> SequenceConditions;
+    private List<DiscountCondition> discountConditions;
 
     public MovieType MovieType { set; get; }
     public Money DiscountAmount { set; get; }
     public double DiscountPercent { set; get; }
 
-    public Movie(string title, TimeSpan runningTime, Money fee, List<PeriodCondition> periodConditions, List<SequenceCondition> sequenceConditions)
+    public Movie(string title, TimeSpan runningTime, Money fee, List<DiscountCondition> discountConditions)
     {
         Title = title;
         RunningTime = runningTime;
         Fee = fee;
-        PeriodConditions = periodConditions;
-        SequenceConditions = sequenceConditions;
+        this.discountConditions = discountConditions;
     }
     private Money CalcualteDiscountAmount()
     {
@@ -48,9 +46,5 @@ public class Movie {
         return Fee;
     }
 
-    private bool IsDiscountable(Screening screening) => CheckPeriodConditions(screening) || CheckSequenceConditions(screening);
-
-    private bool CheckPeriodConditions(Screening screening) => PeriodConditions.Any(condition => condition.IsSatisfiedBy(screening));
-
-    private bool CheckSequenceConditions(Screening screening) => SequenceConditions.Any(condition => condition.IsSatisfiedBy(screening));
+    private bool IsDiscountable(Screening screening) => discountConditions.Any(condition => condition.IsSatisfiedBy(screening));
 }
