@@ -14,11 +14,13 @@ public abstract class Movie {
         Title = title;
         RunningTime = runningTime;
         Fee = fee;
-        this.discountConditions = new List<DiscountCondition>(discountConditions);
+        ChangeDiscountPolicy(discountConditions);
     }
     abstract protected Money CalculateDiscountAmount();
 
     public Money CalculateMovieFee(Screening screening) => IsDiscountable(screening) ? Fee - CalculateDiscountAmount() : Fee;
 
     private bool IsDiscountable(Screening screening) => discountConditions.Any(condition => condition.IsSatisfiedBy(screening));
+
+    public void ChangeDiscountPolicy(params DiscountCondition[] discountConditions) => this.discountConditions = new List<DiscountCondition>(discountConditions);
 }
