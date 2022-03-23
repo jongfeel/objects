@@ -24,7 +24,7 @@ public class Money {
 
     public static bool operator <=(Money a, Money b) => a.amount >= b.amount;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (this == obj)
         {
@@ -36,8 +36,8 @@ public class Money {
             return false;
         }
 
-        Money other = obj as Money;
-        return object.Equals(amount, other.amount);
+        Money? other = obj as Money;
+        return object.Equals(amount, other?.amount);
     }
 
     public override int GetHashCode()
