@@ -37,3 +37,10 @@ jobs:
       run: dotnet build Chapter05/UnitTest --no-restore
     - name: Test => Chapter05/UnitTest 
       run: dotnet test Chapter05/UnitTest --no-build --verbosity normal
+
+    - name: Restore dependencies => Chapter06/UnitTest
+      run: dotnet restore Chapter06/UnitTest
+    - name: Build => Chapter06/UnitTest
+      run: dotnet build Chapter06/UnitTest --no-restore
+    - name: Test => Chapter06/UnitTest 
+      run: dotnet test Chapter06/UnitTest --no-build --verbosity normal
