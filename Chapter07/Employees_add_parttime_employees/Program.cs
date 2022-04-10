@@ -55,4 +55,4 @@ double CalculatePayFor(string name, double taxRate)
 
 string DescribeResult(string name, double pay) => $"Name : {name}, Pay : {pay}";
 
-void SumOfBasePays() => Console.WriteLine(basePays.Sum());
+void SumOfBasePays() => Console.WriteLine(employees.Select((name, index) => !IsHourly(name) ? basePays[index] : 0).Sum());
