@@ -418,3 +418,157 @@ Select linq 함수는 python의 array를 enumerate를 시키면 value와 index�
 ``` c#
 void SumOfBasePays() => Console.WriteLine(employees.Select((name, index) => !IsHourly(name) ? basePays[index] : 0).Sum());
 ```
+
+### 4단계 [employees.rb](https://github.com/eternity-oop/object/blob/master/chapter07/d_module/employees.rb) and [Program.cs](https://github.com/jongfeel/objects/blob/main/Chapter07/Employees_module/Program.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` ruby
+#encoding: UTF-8
+module Employees
+  $employees = ["직원A", "직원B", "직원C", "아르바이트D", "아르바이트E", "아르바이트F"]
+  $basePays = [400, 300, 250, 1, 1, 1.5]
+  $hourlys = [false, false, false, true, true, true]
+  $timeCards = [0, 0, 0, 120, 120, 120]
+
+  def Employees.calculatePay(name, taxRate)
+    if (Employees.hourly?(name)) then
+      pay = Employees.calculateHourlyPayFor(name, taxRate)
+    else
+      pay = Employees.calculatePayFor(name, taxRate)
+    end
+  end
+
+  def Employees.hourly?(name)
+    return $hourlys[$employees.index(name)]
+  end
+
+  def Employees.calculateHourlyPayFor(name, taxRate)
+    index = $employees.index(name)
+    basePay = $basePays[index] * $timeCards[index]
+    return basePay - (basePay * taxRate)
+  end
+
+  def Employees.calculatePayFor(name, taxRate)
+    return basePay - (basePay * taxRate)
+  end
+
+  def Employees.sumOfBasePays()
+    result = 0
+    for name in $employees
+      if (not Employees.hourly?(name)) then
+        result += $basePays[$employees.index(name)]
+      end
+    end
+    return result
+  end
+end
+
+def main(operation, args={})
+  case(operation)
+  when :pay then calculatePay(args[:name])
+  when :basePays then sumOfBasePays()
+  end
+end
+
+def calculatePay(name)
+  taxRate = getTaxRate()
+  pay = Employees.calculatePay(name, taxRate)
+  puts(describeResult(name, pay))
+end
+
+def getTaxRate()
+  print("세율을 입력하세요: ")
+  return gets().chomp().to_f()
+end
+
+def describeResult(name, pay)
+  return "이름 : #{name}, 급여 : #{pay}"
+end
+
+def sumOfBasePays()
+  puts(Employees.sumOfBasePays())
+end
+
+main(:basePays)
+main(:pay, name:"아르바이트F")
+```
+
+``` c#
+// See https://aka.ms/new-console-template for more information
+
+string operation = args.Length > 0 ? args[0] : string.Empty;
+string name = args.Length > 1 ? args[1] : string.Empty;
+
+switch (operation.ToLower())
+{
+    case "pay":
+        CalculatePay(name);
+        break;
+    case "basepay":
+        SumOfBasePays();
+        break;
+}
+
+void CalculatePay(string name)
+{
+    double taxRate = GetTaxRate();
+    double pay = Employees.CalculatePay(name, taxRate);
+    Console.WriteLine(DescribeResult(name, pay));
+}
+
+double GetTaxRate()
+{
+    Console.Write("Input tax rate: ");
+    string? taxRate = Console.ReadLine();
+    double.TryParse(taxRate, out double result);
+    return result;
+}
+
+string DescribeResult(string name, double pay) => $"Name : {name}, Pay : {pay}";
+
+void SumOfBasePays() => Console.WriteLine(Employees.SumOfBasePays());
+
+struct Employees
+{
+    static string[] employees = new [] { "EmployeeA", "EmployeeB", "EmployeeC", "ParttimeD", "ParttimeE", "ParttimeF" };
+    static double[] basePays = new [] { 400, 300, 250, 1, 1, 1.5 };
+    static bool[] hourlys = new [] { false, false, false, true, true, true };
+    static int[] timeCards = new [] { 0, 0, 0, 120, 120, 120 };
+
+    public static double CalculatePay(string name, double taxRate) => IsHourly(name) ? CalculateHourlyPayFor(name, taxRate) : CalculatePayFor(name, taxRate);
+
+    static bool IsHourly(string name)
+    {
+        int index = Array.IndexOf<string>(employees, name);
+        return index >= 0 ? hourlys[index] : false;
+    }
+
+    static double CalculateHourlyPayFor(string name, double taxRate)
+    {
+        int index = Array.IndexOf<string>(employees, name);
+        double basePay = index >= 0 ? basePays[index] * timeCards[index] : 0;
+        return basePay - (basePay * taxRate);
+    }
+
+    static double CalculatePayFor(string name, double taxRate)
+    {
+        int index = Array.IndexOf<string>(employees, name);
+        double basePay = index >= 0 ? basePays[index] : 0;
+        return basePay - (basePay * taxRate);
+    }
+
+    public static double SumOfBasePays() => employees.Select((name, index) => IsHourly(name) ? 0 : basePays[index]).Sum();
+}
+```
+
+</p>
+</details>
+
+#### module vs struct
+
+ruby의 module에 해당하는 C#의 module이 무엇이 있을까 고민하다가 struct를 사용하는 것으로 결정했다. static 키워드를 쓰는 것으로 모듈 느낌을 낼 수 있다고 판단했기 때문이다.
+
+관심사의 분리를 위해 struct 구조를 썼을 뿐 로직의 흐름이나 문법은 달라진 것이 없다
