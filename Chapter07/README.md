@@ -572,3 +572,169 @@ struct Employees
 ruby의 module에 해당하는 C#의 module이 무엇이 있을까 고민하다가 struct를 사용하는 것으로 결정했다. static 키워드를 쓰는 것으로 모듈 느낌을 낼 수 있다고 판단했기 때문이다.
 
 관심사의 분리를 위해 struct 구조를 썼을 뿐 로직의 흐름이나 문법은 달라진 것이 없다
+
+### 5단계 [employees.rb](https://github.com/eternity-oop/object/blob/master/chapter07/e_abstract_data%2Btype/employees.rb) and [Program.cs](https://github.com/jongfeel/objects/blob/main/Chapter07/Employees_abstract_data_and_type/Program.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` ruby
+#encoding: UTF-8
+Employee = Struct.new(:name, :basePay, :hourly, :timeCard) do
+  def calculatePay(taxRate)
+    if (hourly) then
+      return calculateHourlyPay(taxRate)
+    end
+    return calculateSalariedPay(taxRate)
+  end
+
+  def monthlyBasePay()
+    if (hourly) then return 0 end
+    return basePay
+  end
+  
+private  
+  def calculateHourlyPay(taxRate)
+    return (basePay * timeCard) - (basePay * timeCard) * taxRate
+  end
+  
+  def calculateSalariedPay(taxRate)
+    return basePay - (basePay * taxRate)
+  end
+end
+
+$employees = [
+  Employee.new("직원A", 400, false, 0),
+  Employee.new("직원B", 300, false, 0),
+  Employee.new("직원C", 250, false, 0),
+  Employee.new("아르바이트D", 1, true, 120),
+  Employee.new("아르바이트E", 1, true, 120),
+  Employee.new("아르바이트F", 1, true, 120),
+]
+
+def main(operation, args={})
+  case(operation)
+  when :pay then calculatePay(args[:name])
+  when :basePays then sumOfBasePays()
+  end
+end
+
+def calculatePay(name)
+  taxRate = getTaxRate()
+  for each in $employees
+    if (each.name == name) then employee = each; break end
+  end
+  pay = employee.calculatePay(taxRate)
+  puts(describeResult(name, pay))
+end
+
+def getTaxRate()
+  print("세율을 입력하세요: ")
+  return gets().chomp().to_f()
+end
+
+def describeResult(name, pay)
+  return "이름 : #{name}, 급여 : #{pay}"
+end
+
+def sumOfBasePays()
+  result = 0
+  for each in $employees
+    result += each.monthlyBasePay()
+  end
+  puts(result)
+end
+```
+
+``` c#
+// See https://aka.ms/new-console-template for more information
+
+Employee[] employees = new Employee[6]
+{
+  new Employee("EmployeeA", 400, false, 0),
+  new Employee("EmployeeB", 300, false, 0),
+  new Employee("EmployeeC", 250, false, 0),
+  new Employee("ParttimeD", 1, true, 120),
+  new Employee("ParttimeE", 1, true, 120),
+  new Employee("ParttimeF", 1, true, 120)
+};
+
+string operation = args.Length > 0 ? args[0] : string.Empty;
+string name = args.Length > 1 ? args[1] : string.Empty;
+
+switch (operation.ToLower())
+{
+    case "pay":
+        CalculatePay(name);
+        break;
+    case "basepay":
+        SumOfBasePays();
+        break;
+}
+
+void CalculatePay(string name)
+{
+    double taxRate = GetTaxRate();
+    Employee? matchEmployee = employees.FirstOrDefault(employee => employee.Name.Equals(name));
+    double? pay = matchEmployee?.CalculatePay(taxRate);
+    Console.WriteLine(DescribeResult(name, pay));
+}
+
+double GetTaxRate()
+{
+    Console.Write("Input tax rate: ");
+    string? taxRate = Console.ReadLine();
+    double.TryParse(taxRate, out double result);
+    return result;
+}
+
+string DescribeResult(string name, double? pay) => $"Name : {name}, Pay : {pay}";
+
+void SumOfBasePays() => Console.WriteLine(employees.Sum(employee => employee.MonthlyBasePay));
+
+class Employee
+{
+    public string Name { private set; get; }
+    private double basePay;
+    private bool isHourly;
+    private int timeCard;
+
+    public Employee(string name, double basePay, bool isHourly, int timeCard)
+    {
+        this.Name = name;
+        this.basePay = basePay;
+        this.isHourly = isHourly;
+        this.timeCard = timeCard;
+    }
+
+    public double CalculatePay(double taxRate) => isHourly ? CalculateHourlyPay(taxRate) : CalculateSalariedPay(taxRate);
+
+    public double MonthlyBasePay => isHourly ? 0 : basePay;
+
+    private double CalculateHourlyPay(double taxRate) => (basePay * timeCard) - (basePay * timeCard) * taxRate;
+
+    private double CalculateSalariedPay(double taxRate) => basePay - (basePay * taxRate);
+}
+```
+
+</p>
+</details>
+
+#### struct vs class
+
+ruby의 struct는 C#의 class의 개념과 거의 같으므로 class를 사용해서 코딩했다.
+
+new로 객체 생성하는 것도 유사하고, 내부에서 private, public으로 캡슐화를 하는 방법도 같다.
+
+CalculatePay() 함수에서 C#으로 옮길 때 FirstOrDefault를 사용해서 name에 해당하는 employee가 없을 때의 예외 처리를 추가했다. Ruby 코드에는 그런 처기가 없으므로 name이 일치하지 않으면 예외가 발생한다.
+
+``` c#
+void CalculatePay(string name)
+{
+    double taxRate = GetTaxRate();
+    Employee? matchEmployee = employees.FirstOrDefault(employee => employee.Name.Equals(name));
+    double? pay = matchEmployee?.CalculatePay(taxRate);
+    Console.WriteLine(DescribeResult(name, pay));
+}
+```
