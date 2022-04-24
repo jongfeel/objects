@@ -727,7 +727,7 @@ ruby의 struct는 C#의 class의 개념과 거의 같으므로 class를 사용�
 
 new로 객체 생성하는 것도 유사하고, 내부에서 private, public으로 캡슐화를 하는 방법도 같다.
 
-CalculatePay() 함수에서 C#으로 옮길 때 FirstOrDefault를 사용해서 name에 해당하는 employee가 없을 때의 예외 처리를 추가했다. Ruby 코드에는 그런 처기가 없으므로 name이 일치하지 않으면 예외가 발생한다.
+CalculatePay() 함수에서 C#으로 옮길 때 FirstOrDefault를 사용해서 name에 해당하는 employee가 없을 때의 예외 처리를 추가했다. Ruby 코드에는 이런 예외처리가 없으므로 name이 일치하지 않으면 예외가 발생한다.
 
 ``` c#
 void CalculatePay(string name)
@@ -738,3 +738,200 @@ void CalculatePay(string name)
     Console.WriteLine(DescribeResult(name, pay));
 }
 ```
+
+### 6단계 [employees.rb](https://github.com/eternity-oop/object/blob/master/chapter07/f_class/employees.rb) and [Program.cs](https://github.com/jongfeel/objects/blob/main/Chapter07/Employees_class/Program.cs)
+
+<details>
+<summary>Code</summary>
+<p>
+
+``` ruby
+#encoding: UTF-8
+class Employee
+  attr_reader :name, :basePay
+  
+  def initialize(name, basePay)
+    @name = name
+    @basePay = basePay
+  end
+    
+  def calculatePay(taxRate)
+    raise NotImplementedError
+  end
+  
+  def monthlyBasePay()
+    raise NotImplementedError
+  end
+end
+
+class SalariedEmployee < Employee
+  def initialize(name, basePay)
+    super(name, basePay)
+  end
+    
+  def calculatePay(taxRate)
+    return basePay - (basePay * taxRate)
+  end
+  
+  def monthlyBasePay()
+    return basePay
+  end
+end
+
+class HourlyEmployee < Employee
+  attr_reader :timeCard
+  def initialize(name, basePay, timeCard)
+    super(name, basePay)
+    @timeCard = timeCard
+  end
+  
+  def calculatePay(taxRate)
+    return (basePay * timeCard) - (basePay * timeCard) * taxRate
+  end
+  
+  def monthlyBasePay()
+    return 0
+  end  
+end
+
+$employees = [
+  SalariedEmployee.new("직원A", 400),
+  SalariedEmployee.new("직원B", 300),
+  SalariedEmployee.new("직원C", 250),
+  HourlyEmployee.new("아르바이트D", 1, 120),
+  HourlyEmployee.new("아르바이트E", 1, 120),
+  HourlyEmployee.new("아르바이트F", 1, 120),
+]
+
+def main(operation, args={})
+  case(operation)
+  when :pay then calculatePay(args[:name])
+  when :basePays then sumOfBasePays()
+  end
+end
+
+def calculatePay(name)
+  taxRate = getTaxRate()
+  for each in $employees
+    if (each.name == name) then employee = each; break end
+  end
+  pay = employee.calculatePay(taxRate)
+  puts(describeResult(name, pay))
+end
+
+def getTaxRate()
+  print("세율을 입력하세요: ")
+  return gets().chomp().to_f()
+end
+
+def describeResult(name, pay)
+  return "이름 : #{name}, 급여 : #{pay}"
+end
+
+def sumOfBasePays()
+  result = 0
+  for each in $employees
+    result += each.monthlyBasePay()
+  end
+  puts(result)
+end
+```
+
+``` c#
+// See https://aka.ms/new-console-template for more information
+
+Employee[] employees = new Employee[6]
+{
+  new SalariedEmployee("EmployeeA", 400),
+  new SalariedEmployee("EmployeeB", 300),
+  new SalariedEmployee("EmployeeC", 250),
+  new HourlyEmployee("ParttimeD", 1, 120),
+  new HourlyEmployee("ParttimeE", 1, 120),
+  new HourlyEmployee("ParttimeF", 1, 120)
+};
+
+string operation = args.Length > 0 ? args[0] : string.Empty;
+string name = args.Length > 1 ? args[1] : string.Empty;
+
+switch (operation.ToLower())
+{
+    case "pay":
+        CalculatePay(name);
+        break;
+    case "basepay":
+        SumOfBasePays();
+        break;
+}
+
+void CalculatePay(string name)
+{
+    double taxRate = GetTaxRate();
+    Employee? matchEmployee = employees.FirstOrDefault(employee => employee.Name.Equals(name));
+    double? pay = matchEmployee?.CalculatePay(taxRate);
+    Console.WriteLine(DescribeResult(name, pay));
+}
+
+double GetTaxRate()
+{
+    Console.Write("Input tax rate: ");
+    string? taxRate = Console.ReadLine();
+    double.TryParse(taxRate, out double result);
+    return result;
+}
+
+string DescribeResult(string name, double? pay) => $"Name : {name}, Pay : {pay}";
+
+void SumOfBasePays() => Console.WriteLine(employees.Sum(employee => employee.MonthlyBasePay));
+
+abstract class Employee
+{
+    public string Name { private set; get; }
+    protected double basePay;
+
+    public Employee(string name, double basePay)
+    {
+        this.Name = name;
+        this.basePay = basePay;
+    }
+
+    public abstract double CalculatePay(double taxRate);
+    public abstract double MonthlyBasePay { get; }
+}
+
+class SalariedEmployee : Employee
+{
+    public SalariedEmployee(string name, double basePay) : base(name, basePay) { }
+
+    public override double MonthlyBasePay => basePay;
+
+    public override double CalculatePay(double taxRate) => basePay - (basePay * taxRate);
+}
+
+class HourlyEmployee : Employee
+{
+    private double timeCard;
+    public HourlyEmployee(string name, double basePay, double timeCard) : base(name, basePay) => this.timeCard = timeCard;
+
+    public override double MonthlyBasePay => 0;
+
+    public override double CalculatePay(double taxRate) => (basePay * timeCard) - (basePay * timeCard) * taxRate;
+}
+```
+
+</p>
+</details>
+
+#### class inheritance
+
+ruby의 상속 구조 역시 C#에서 그대로 가져와서 구현했다.  
+ruby로 구현한 상속 구조의 특징은 아래와 같다.
+
+- java와 마찬가지로 super 키워드를 통해 parent를 접근한다.
+- 명시적으로 override 키워드를 쓰지 않아도 override를 지원하고 있다.
+- ruby에는 abstract라는 키워드를 쓰지 않으므로 `raise NotImplementedError` 라는 표현으로 abstract를 구현하고 있다.
+
+이와 달리 C#은 같은 기능을 구현하는데 있어서 아래와 같은 특징을 보인다.
+
+- base 키워드를 통해 parent를 접근한다.
+- override 키워드를 통해 명시적으로 override 메서드를 표현한다.
+- 명시적으로 abstract class 및 method를 구현할 수 있으므로 abstract 키워드를 사용하고 메서드의 구현부는 구현하지 않아도 된다.
